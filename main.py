@@ -1,21 +1,24 @@
 import vk_api
 import yaml
 import requests
-from vk_api.longpoll import VkLongPoll, VkEventType
-from vk_api.utils import get_random_id
+from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
+import handler
 
 with open('settings.yaml', encoding='utf8') as f:
     settings = yaml.safe_load(f)
 
 session = requests.Session()
-token, confirmation_token = settings['token'], settings['confirmation_token']
+token, confirmation_token, group_id = settings['token'], settings['confirmation_token'], settings['group_id']
 vk_session = vk_api.VkApi(token=token)
-longpoll = VkLongPoll(vk_session, wait=25)
+longpoll = VkBotLongPoll(vk_session, group_id, wait=25)
 vk = vk_session.get_api()
-key, server, ts = vk.groups.getLongPollServer(group_id=169574362)
+LongPollServer = vk.groups.getLongPollServer(group_id=group_id)
+key, server, ts = LongPollServer['key'], LongPollServer['server'], LongPollServer['ts']
+
+config = {'key': key, 'server': server, 'ts': ts}
+
 
 while True:
     for event in longpoll.listen():
-        if event.type == VkEventType.MESSAGE_NEW and event.to_me and event.text:
-            if event.text == 'тык':
-                vk.messages.send(key=key, server=server, ts=ts, random_id = get_random_id(), user_id=event.user_id, message='робит')
+        if event.type == VkBotEventType.MESSAGE_NEW:
+            handler.answer(vk, settings, longpoll, config, event.object)
