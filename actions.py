@@ -4,6 +4,7 @@ from vk_api.bot_longpoll import VkBotEventType
 
 action_list = []
 
+
 class Actions:
     def __init__(self):
         self.vars = []
@@ -13,6 +14,7 @@ class Actions:
     @property
     def vars(self):
         return self.vars
+
     def times(self):
         return self.times
 
@@ -37,11 +39,11 @@ def add_patr(vk, longpoll, config, object):
     while event.type != VkBotEventType.MESSAGE_NEW:
         event = list(longpoll.check())
         event = event[-1]
-            #(object.message['text']).lower() в бд
+        # (object.message['text']).lower() в бд
     add_time = event.object.message['text']
     vk.messages.send(**config, random_id=get_random_id(), user_id=object.message['from_id'],
-                             message='Патруль в ' + add_time + ' успешно добавлен',
-                             )
+                     message='Патруль в ' + add_time + ' успешно добавлен',
+                     )
 
 
 patr = Actions()

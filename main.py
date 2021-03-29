@@ -8,7 +8,7 @@ with open('settings.yaml', encoding='utf8') as f:
     settings = yaml.safe_load(f)
 
 session = requests.Session()
-token, confirmation_token, group_id = settings['token'], settings['confirmation_token'], settings['group_id']
+token, confirmation_token, group_id= settings['token'], settings['confirmation_token'], settings['group_id']
 vk_session = vk_api.VkApi(token=token)
 longpoll = VkBotLongPoll(vk_session, group_id, wait=25)
 vk = vk_session.get_api()

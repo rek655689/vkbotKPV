@@ -11,8 +11,41 @@ def kb_start():
     return keyboard.get_keyboard()
 
 
+def kb_introduction():
+    keyboard = VkKeyboard(one_time=True)
+    keyboard.add_button('Вступить', color=VkKeyboardColor.POSITIVE)
+    keyboard.add_button('Выйти', color=VkKeyboardColor.NEGATIVE)
+    return keyboard.get_keyboard()
+
+
+def kb_position():
+    keyboard = VkKeyboard(one_time=True)
+    keyboard.add_button('Будущий Страж', color=VkKeyboardColor.SECONDARY)
+    keyboard.add_button('Будущий Охотник', color=VkKeyboardColor.SECONDARY)
+    keyboard.add_line()
+    keyboard.add_button('Страж', color=VkKeyboardColor.SECONDARY)
+    keyboard.add_button('Охотник', color=VkKeyboardColor.SECONDARY)
+    keyboard.add_line()
+    keyboard.add_button('Переходящий', color=VkKeyboardColor.SECONDARY)
+    keyboard.add_button('Котёнок', color=VkKeyboardColor.SECONDARY)
+    return keyboard.get_keyboard()
+
+def kb_request():
+    keyboard = VkKeyboard(one_time=True)
+    keyboard.add_button('Принять', color=VkKeyboardColor.POSITIVE)
+    keyboard.add_button('Отклонить', color=VkKeyboardColor.NEGATIVE)
+    return keyboard.get_keyboard()
+
+
 def kb_patr(times):
     keyboard = VkKeyboard(one_time=True)
     for i in times:
         keyboard.add_button(i, color=VkKeyboardColor.SECONDARY)
+    return keyboard.get_keyboard()
+
+
+def kb_del(times):
+    keyboard = VkKeyboard(one_time=True)
+    keyboard.add_button('Одно', color=VkKeyboardColor.SECONDARY)
+    keyboard.add_button('Все', color=VkKeyboardColor.SECONDARY)
     return keyboard.get_keyboard()
