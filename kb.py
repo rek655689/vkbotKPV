@@ -1,16 +1,6 @@
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 
 
-def kb_start():
-    keyboard = VkKeyboard(one_time=True)
-    keyboard.add_button('Создать напоминание', color=VkKeyboardColor.POSITIVE)
-    keyboard.add_line()
-    keyboard.add_button('Мои напоминания', color=VkKeyboardColor.PRIMARY)
-    keyboard.add_line()
-    keyboard.add_button('Удалить напоминание', color=VkKeyboardColor.NEGATIVE)
-    return keyboard.get_keyboard()
-
-
 def kb_introduction():
     keyboard = VkKeyboard(one_time=True)
     keyboard.add_button('Вступить', color=VkKeyboardColor.POSITIVE)
@@ -30,6 +20,7 @@ def kb_position():
     keyboard.add_button('Котёнок', color=VkKeyboardColor.SECONDARY)
     return keyboard.get_keyboard()
 
+
 def kb_request():
     keyboard = VkKeyboard(one_time=True)
     keyboard.add_button('Принять', color=VkKeyboardColor.POSITIVE)
@@ -37,14 +28,24 @@ def kb_request():
     return keyboard.get_keyboard()
 
 
-def kb_patr(times):
+def kb_start():
+    keyboard = VkKeyboard(one_time=True)
+    keyboard.add_button('Создать напоминание', color=VkKeyboardColor.POSITIVE)
+    keyboard.add_line()
+    keyboard.add_button('Мои напоминания', color=VkKeyboardColor.PRIMARY)
+    keyboard.add_line()
+    keyboard.add_button('Удалить напоминания', color=VkKeyboardColor.NEGATIVE)
+    return keyboard.get_keyboard()
+
+
+def kb_action(times):
     keyboard = VkKeyboard(one_time=True)
     for i in times:
         keyboard.add_button(i, color=VkKeyboardColor.SECONDARY)
     return keyboard.get_keyboard()
 
 
-def kb_del(times):
+def kb_del():
     keyboard = VkKeyboard(one_time=True)
     keyboard.add_button('Одно', color=VkKeyboardColor.SECONDARY)
     keyboard.add_button('Все', color=VkKeyboardColor.SECONDARY)

@@ -69,7 +69,7 @@ def steps(vk, longpoll, config, object):
             if event.object.message['from_id'] == user_id:
                 event = event
                 break
-    name = event.object.message['text']
+    name = (event.object.message['text']).title()
 
     # ПРОФИЛЬ
     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,

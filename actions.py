@@ -1,6 +1,7 @@
 from vk_api.utils import get_random_id
 import kb
 from vk_api.bot_longpoll import VkBotEventType
+import database
 
 action_list = []
 
@@ -26,27 +27,44 @@ class Actions:
         for k in time:
             self.times.append(k.lower())
 
-    def process(self):
-        pass
+    def add(self, vk, longpoll, config, object):
+        user_id = object.message['from_id']
+        vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
+                         message='Выбери время:',
+                         keyboard=kb.kb_action(self.times),
+                         )
+        for event in longpoll.listen():
+            if event.type == VkBotEventType.MESSAGE_NEW:
+                if event.object.message['from_id'] == user_id:
+                    event = event
+                    break
+        time = event.object.message['text']
+        database.add_action(user_id=user_id, action=self.vars[0], time=time)
+        vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
+                         message=(self.vars[0]).title() + ' в ' + time + ' успешно добавлен(а)',
+                         )
 
-
-def add_patr(vk, longpoll, config, object):
-    vk.messages.send(**config, random_id=get_random_id(), user_id=object.message['from_id'],
-                     message='Выбери время:',
-                     keyboard=kb.kb_patr(patr.times),
-                     )
-    event = longpoll.check()[-1]
-    while event.type != VkBotEventType.MESSAGE_NEW:
-        event = list(longpoll.check())
-        event = event[-1]
-        # (object.message['text']).lower() в бд
-    add_time = event.object.message['text']
-    vk.messages.send(**config, random_id=get_random_id(), user_id=object.message['from_id'],
-                     message='Патруль в ' + add_time + ' успешно добавлен',
-                     )
-
+    def delete(self, vk, longpoll, config, object):
+        user_id = object.message['from_id']
+        vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
+                         message='Выбери время:',
+                         keyboard=kb.kb_action(self.times),
+                         )
+        for event in longpoll.listen():
+            if event.type == VkBotEventType.MESSAGE_NEW:
+                if event.object.message['from_id'] == user_id:
+                    event = event
+                    break
+        time = event.object.message['text']
+        database.del_action(user_id=user_id, action=self.vars[0], time=time)
+        vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
+                         message=(self.vars[0]).title() + ' в ' + time + ' успешно удален(а)',
+                         )
 
 patr = Actions()
 patr.vars = ['патруль', 'патрули', 'патр', 'патры', 'пп']
 patr.times = ['12:00', '13:00']
-patr.process = add_patr
+
+hunt = Actions()
+hunt.vars = ['охота', 'охоты', 'оп']
+hunt.times = ['10:00', '11:00']
