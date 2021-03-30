@@ -57,12 +57,35 @@ def del_action(user_id, action, time):
     connection.close()
     return
 
+
 def del_all(user_id):
     connection = get_connection()
     cursor = connection.cursor()
     add = "DELETE FROM reminders WHERE Id = %s"
     data = (user_id,)
     cursor.execute(add, data)
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return
+
+
+def show_requests():
+    connection = get_connection()
+    cursor = connection.cursor()
+    add = "SELECT * FROM new_members ORDER BY name"
+    cursor.execute(add)
+    result = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return result
+
+
+def del_requests():
+    connection = get_connection()
+    cursor = connection.cursor()
+    add = "DELETE FROM new_members"
+    cursor.execute(add)
     connection.commit()
     cursor.close()
     connection.close()

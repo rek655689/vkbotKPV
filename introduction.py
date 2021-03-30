@@ -4,16 +4,16 @@ from vk_api.utils import get_random_id
 from vk_api.bot_longpoll import VkBotEventType
 import database
 
+with open('settings.yaml', encoding='utf8') as f:
+    settings = yaml.safe_load(f)
+user_token, group_id, editor = settings['access_token'], settings['group_id'], settings['editor']
+vk_token = (VkApi(token=user_token)).get_api()
+
 
 def steps(vk, longpoll, config, object):
     user_id = object.message['from_id']
 
     # ПРОВЕРКА ЗАЯВКИ
-    with open('settings.yaml', encoding='utf8') as f:
-        settings = yaml.safe_load(f)
-    user_token, group_id, editor = settings['access_token'], settings['group_id'], settings['editor']
-
-    vk_token = (VkApi(token=user_token)).get_api()
     requests = vk_token.groups.getRequests(group_id=group_id)
     if user_id not in requests['items']:
         vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,

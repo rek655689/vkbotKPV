@@ -1,15 +1,18 @@
 from vk_api.utils import get_random_id
 from vk_api.bot_longpoll import VkBotEventType
 from actions import action_list, kb
-from vk_api import VkApi
-import yaml
-import introduction, database
+import introduction, database, yaml
 
 
 def isMember(vk, token, user_id, group_id):
     if vk.groups.isMember(access_token=token, user_id=user_id, group_id=group_id):
         return 1
     return 0
+
+
+with open('settings.yaml', encoding='utf8') as f:
+    settings = yaml.safe_load(f)
+    editor = settings['editor']
 
 
 ###################### BASE #############################
@@ -83,7 +86,7 @@ def del_reminder(vk, longpoll, config, object):
     if event.object.message['text'].lower() == 'одно':
         del_one(vk, longpoll, config, object)
     elif event.object.message['text'].lower() == 'все' or event.object.message['text'].lower() == 'всё':
-        del_all(vk, longpoll, config, object)  # TODO
+        del_all(vk, longpoll, config, object)
 
 
 def del_one(vk, longpoll, config, object):
@@ -109,11 +112,28 @@ def del_all(vk, config, object):
                      )
 
 
+def request(vk, config, object):
+    user_id = object.message['from_id']
+    result = database.show_requests()
+    message = ''
+    for x in result:
+        vk_id, vk_name, id, name, position = str(x[0]), x[1], str(x[2]), x[3], x[4]
+        message = message + position + '\n|-\n| [[*id' + vk_id + '|' + vk_name + ']]\n| [*' + name + '|' + id + ']\n| [https://catwar.su/cat' + id + ']\n'
+    if message == '':
+        message = 'Заявок нет'
+    vk.messages.send(**config, random_id=get_random_id(), user_id=user_id, dont_parse_links=1,
+                     message=message,
+                     )
+    database.del_requests()
+
+
 def start(vk, longpoll, config, object):
     user_id = object.message['from_id']
+    if user_id == editor:
+        perm = 1
     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                      message='Выбери одну из функций:',
-                     keyboard=kb.kb_start(),
+                     keyboard=kb.kb_start(perm),
                      )
     for event in longpoll.listen():
         if event.type == VkBotEventType.MESSAGE_NEW:
@@ -129,6 +149,9 @@ def start(vk, longpoll, config, object):
 
     elif (event.object.message['text']).lower() == 'удалить напоминания':
         del_reminder(vk, longpoll, config, event.object)
+
+    elif (event.object.message['text']).lower() == 'заявки' and event.object.message['from_id'] == editor:
+        request(vk, config, event.object)
 
     else:
         dont_know(vk, config, event.object)

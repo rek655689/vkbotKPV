@@ -28,13 +28,16 @@ def kb_request():
     return keyboard.get_keyboard()
 
 
-def kb_start():
+def kb_start(perm):
     keyboard = VkKeyboard(one_time=True)
     keyboard.add_button('Создать напоминание', color=VkKeyboardColor.POSITIVE)
     keyboard.add_line()
     keyboard.add_button('Мои напоминания', color=VkKeyboardColor.PRIMARY)
     keyboard.add_line()
     keyboard.add_button('Удалить напоминания', color=VkKeyboardColor.NEGATIVE)
+    if perm:
+        keyboard.add_line()
+        keyboard.add_button('Заявки', color=VkKeyboardColor.SECONDARY)
     return keyboard.get_keyboard()
 
 
