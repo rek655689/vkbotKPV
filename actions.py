@@ -63,7 +63,7 @@ class Actions:
 
     def send(self, vk, config, time):
         ids = database.check_ids(self.vars[0], time)[0]
-        vk.messages.send(**config, random_id=get_random_id(), peer_ids=(478936081, 597786732),
+        vk.messages.send(**config, random_id=get_random_id(), peer_ids=ids,
                          message=time + ' успешно'
                          )
 
