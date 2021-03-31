@@ -90,3 +90,15 @@ def del_requests():
     cursor.close()
     connection.close()
     return
+
+
+def check_ids(action, time):
+    connection = get_connection()
+    cursor = connection.cursor()
+    add = "SELECT Id FROM reminders WHERE Action = %s and Time = %s"
+    data = (action, time)
+    cursor.execute(add, data)
+    result = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return result

@@ -61,10 +61,25 @@ class Actions:
                          message=(self.vars[0]).title() + ' в ' + time + ' успешно удален(а)',
                          )
 
+    def send(self, vk, config, time):
+        ids = database.check_ids(self.vars[0], time)[0]
+        vk.messages.send(**config, random_id=get_random_id(), peer_ids=(478936081, 597786732),
+                         message=time + ' успешно'
+                         )
+
+    def get_var_name(self):
+        for k, v in globals().items():
+            if v is self:
+                return k
+
+    def __str__(self):
+        return {self.get_var_name()}
+
+
 patr = Actions()
 patr.vars = ['патруль', 'патрули', 'патр', 'патры', 'пп']
 patr.times = ['12:00', '13:00']
 
 hunt = Actions()
 hunt.vars = ['охота', 'охоты', 'оп']
-hunt.times = ['10:00', '11:00']
+hunt.times = ['10:00', '11:22']
