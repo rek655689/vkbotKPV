@@ -8,7 +8,7 @@ with open('settings.yaml', encoding='utf8') as f:
     settings = yaml.safe_load(f)
 
 session = requests.Session()
-token, confirmation_token, group_id= settings['token'], settings['confirmation_token'], settings['group_id']
+token, confirmation_token, group_id = settings['token'], settings['confirmation_token'], settings['group_id']
 vk_session = vk_api.VkApi(token=token)
 longpoll = VkBotLongPoll(vk_session, group_id, wait=25)
 vk = vk_session.get_api()
@@ -17,8 +17,8 @@ key, server, ts = LongPollServer['key'], LongPollServer['server'], LongPollServe
 
 config = {'key': key, 'server': server, 'ts': ts}
 
-
 while True:
     for event in longpoll.listen():
         if event.type == VkBotEventType.MESSAGE_NEW:
-            handler.answer(vk, settings, longpoll, config, event.object)
+            handler.answer(vk, settings, config, event.object)
+            continue

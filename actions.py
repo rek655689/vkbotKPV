@@ -1,6 +1,4 @@
 from vk_api.utils import get_random_id
-import kb
-from vk_api.bot_longpoll import VkBotEventType
 import database
 
 action_list = []
@@ -26,40 +24,6 @@ class Actions:
     def times(self, time):
         for k in time:
             self.times.append(k.lower())
-
-    def add(self, vk, longpoll, config, object):
-        user_id = object.message['from_id']
-        vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                         message='Выбери время:',
-                         keyboard=kb.kb_action(self.times),
-                         )
-        for event in longpoll.listen():
-            if event.type == VkBotEventType.MESSAGE_NEW:
-                if event.object.message['from_id'] == user_id:
-                    event = event
-                    break
-        time = event.object.message['text']
-        database.add_action(user_id=user_id, action=self.vars[0], time=time)
-        vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                         message=(self.vars[0]).title() + ' в ' + time + ' успешно добавлен(а)',
-                         )
-
-    def delete(self, vk, longpoll, config, object):
-        user_id = object.message['from_id']
-        vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                         message='Выбери время:',
-                         keyboard=kb.kb_action(self.times),
-                         )
-        for event in longpoll.listen():
-            if event.type == VkBotEventType.MESSAGE_NEW:
-                if event.object.message['from_id'] == user_id:
-                    event = event
-                    break
-        time = event.object.message['text']
-        database.del_action(user_id=user_id, action=self.vars[0], time=time)
-        vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                         message=(self.vars[0]).title() + ' в ' + time + ' успешно удален(а)',
-                         )
 
     def send(self, vk, config, time):
         ids = database.check_ids(self.vars[0], time)[0]

@@ -1,9 +1,22 @@
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 
 
+def kb_exit():
+    keyboard = VkKeyboard(one_time=True)
+    keyboard.add_button('Выйти', color=VkKeyboardColor.NEGATIVE)
+    return keyboard.get_keyboard()
+
+
 def kb_introduction():
     keyboard = VkKeyboard(one_time=True)
     keyboard.add_button('Вступить', color=VkKeyboardColor.POSITIVE)
+    keyboard.add_button('Выйти', color=VkKeyboardColor.NEGATIVE)
+    return keyboard.get_keyboard()
+
+
+def kb_intr_req():
+    keyboard = VkKeyboard(one_time=True)
+    keyboard.add_button('Готово', color=VkKeyboardColor.POSITIVE)
     keyboard.add_button('Выйти', color=VkKeyboardColor.NEGATIVE)
     return keyboard.get_keyboard()
 
@@ -18,6 +31,8 @@ def kb_position():
     keyboard.add_line()
     keyboard.add_button('Переходящий', color=VkKeyboardColor.SECONDARY)
     keyboard.add_button('Котёнок', color=VkKeyboardColor.SECONDARY)
+    keyboard.add_line()
+    keyboard.add_button('Выйти', color=VkKeyboardColor.NEGATIVE)
     return keyboard.get_keyboard()
 
 
