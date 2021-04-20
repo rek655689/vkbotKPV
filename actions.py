@@ -42,8 +42,24 @@ class Actions:
 
 patr = Actions()
 patr.vars = ['патруль', 'патрули', 'патр', 'патры', 'пп']
-patr.times = ['12:00', '13:00']
+patr.times = ['10:20', '13:00', '15:00', '18:20', '20:00']
 
 hunt = Actions()
 hunt.vars = ['охота', 'охоты', 'оп']
-hunt.times = ['10:00', '11:22']
+hunt.times = ['11:20', '13:20', '14:20', '16:20', '19:00']
+
+swim = Actions()
+swim.vars = ['заплыв', 'плыв', 'заплывы']
+swim.times = ['12:00', '21:00']
+
+mass = Actions()
+mass.vars = ['массовая тренировка', 'массовка', 'массокач', 'маскач']
+mass.times = ['12:00', '17:20']
+
+grass = Actions()
+grass.vars = ['травник', 'трав', 'сбор трав']
+grass.times = ['16:00']
+
+moss = Actions()
+moss.vars = ['мох', 'мохосбор', 'сбор мха']
+moss.times = ['16:00']
