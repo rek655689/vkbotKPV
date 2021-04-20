@@ -25,10 +25,13 @@ class Actions:
         for k in time:
             self.times.append(k.lower())
 
-    def send(self, vk, config, time):
-        ids = database.check_ids(self.vars[0], time)[0]
+    def send(self, vk, config, times):
+        ids = database.check_ids(self.vars[0], times)[0]
+        for action in action_list:
+            if times in action.times:
+                name = action.vars[0]
         vk.messages.send(**config, random_id=get_random_id(), peer_ids=ids,
-                         message=time + ' успешно'
+                         message=f'Через 10 минут будет {name}'
                          )
 
     def get_var_name(self):
@@ -61,5 +64,5 @@ grass.vars = ['травник', 'трав', 'сбор трав']
 grass.times = ['16:00']
 
 moss = Actions()
-moss.vars = ['мох', 'мохосбор', 'сбор мха']
-moss.times = ['16:00']
+moss.vars = ['сбор мха', 'мох', 'мохосбор']
+moss.times = ['17:00']
