@@ -110,9 +110,6 @@ def create_reminder(vk, config, object):
                                          )
                         database.add_step(user_id, 2, 'create_reminder')
 
-                else:
-                    vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                                     message='Не удалось распознать, попробуй назвать деятельность по-другому')
             else:
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                  message='Проверь правильность ввода')
@@ -177,10 +174,6 @@ def del_reminder(vk, config, object):
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                  message='Все напоминания успешно удалены',
                                  )
-            else:
-                vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                                 message='Не удалось распознать, попробуй написать по-другому',
-                                 )
 
     if step == 2:
         if not re.search('[^Ёа-я ]', object.message['text'].lower(), flags=re.IGNORECASE):
@@ -193,10 +186,6 @@ def del_reminder(vk, config, object):
                                      keyboard=kb.kb_action(c.times),
                                      )
                     database.add_step(user_id, 3, 'del_reminders')
-                    break
-            else:
-                vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                                 message='Не удалось распознать, попробуй назвать деятельность по-другому')
         else:
             vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                              message='Проверь правильность ввода')

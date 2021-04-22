@@ -29,7 +29,7 @@ def add_action(user_id, action, time):
         add = 'INSERT reminders (Id, Action) VALUES(%s, %s)'
         data = (user_id, action)
     else:
-        add = 'UPDATE reminders SET Time=%s WHERE Id = %s AND Time="0"'
+        add = 'UPDATE reminders SET Time=%s WHERE Id = %s AND Time=""'
         data = (time, user_id)
     cursor.execute(add, data)
     connection.commit()
