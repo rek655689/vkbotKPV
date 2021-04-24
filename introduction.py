@@ -6,7 +6,7 @@ import kb
 import yaml
 import re
 
-with open('./settings.yaml', encoding='utf8') as f:
+with open('/settings.yaml', encoding='utf8') as f:
     settings = yaml.safe_load(f)
 user_token, group_id, editor = settings['access_token'], settings['group_id'], settings['editor']
 vk_token = (VkApi(token=user_token)).get_api()

@@ -15,7 +15,7 @@ def isMember(vk, token, user_id, group_id):
     return 0
 
 
-with open('./settings.yaml', encoding='utf8') as f:
+with open('/settings.yaml', encoding='utf8') as f:
     settings = yaml.safe_load(f)
     user_token, group_id, editor = settings['access_token'], settings['group_id'], settings['editor']
 

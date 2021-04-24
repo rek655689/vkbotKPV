@@ -1,6 +1,6 @@
 import mysql.connector, yaml
 
-with open('./settings.yaml', encoding='utf8') as f:
+with open('/settings.yaml', encoding='utf8') as f:
     settings = yaml.safe_load(f)
     settings = settings['database']
 

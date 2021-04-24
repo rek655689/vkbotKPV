@@ -1,7 +1,7 @@
 import time, schedule, vk_api, yaml, actions
 from vk_api.bot_longpoll import VkBotLongPoll
 
-with open('./settings.yaml', encoding='utf8') as f:
+with open('/settings.yaml', encoding='utf8') as f:
     settings = yaml.safe_load(f)
 
 token, confirmation_token, group_id = settings['token'], settings['confirmation_token'], settings['group_id']
