@@ -3,16 +3,12 @@ from vk_api.utils import get_random_id
 
 import database
 import kb
-import yaml
 import re
 
-with open('/settings.yaml', encoding='utf8') as f:
-    settings = yaml.safe_load(f)
-user_token, group_id, editor = settings['access_token'], settings['group_id'], settings['editor']
-vk_token = (VkApi(token=user_token)).get_api()
 
-
-def intr(vk, config, object):
+def intr(vk, settings, config, object):
+    user_token, group_id, editor = settings['access_token'], settings['group_id'], settings['editor']
+    vk_token = (VkApi(token=user_token)).get_api()
     user_id = object.message['from_id']
     step = int(database.check_step(user_id, 'intr'))
 

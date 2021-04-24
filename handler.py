@@ -1,13 +1,9 @@
 import commands
 import introduction
-import yaml
-
-with open('/settings.yaml', encoding='utf8') as f:
-    settings = yaml.safe_load(f)
-    editor = settings['editor']
 
 
 def answer(vk, settings, config, object):
+    editor = settings['editor']
     user_id = object.message['from_id']
 
     if 1 == commands.isMember(vk, token=settings['token'], group_id=settings['group_id'], user_id=user_id):
@@ -30,6 +26,6 @@ def answer(vk, settings, config, object):
         elif object.message['text'].lower() == 'удалить напоминания':
             commands.del_reminder(vk, config, object)
         else:
-            commands.start(vk, config, object)
+            commands.start(vk, settings, config, object)
     else:
-        introduction.intr(vk, config, object)
+        introduction.intr(vk, settings, config, object)

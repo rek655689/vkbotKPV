@@ -4,7 +4,6 @@ from mysql.connector import errors as mysql
 
 import database
 import kb
-import yaml
 import re
 import actions
 
@@ -15,18 +14,14 @@ def isMember(vk, token, user_id, group_id):
     return 0
 
 
-with open('/settings.yaml', encoding='utf8') as f:
-    settings = yaml.safe_load(f)
-    user_token, group_id, editor = settings['access_token'], settings['group_id'], settings['editor']
-
-vk_token = (VkApi(token=user_token)).get_api()
-
-
 ###################### BASE #############################
 
 
 def editor_answer(vk, settings, config, object):
-    last_message = vk.messages.getHistory(**config, group_id=settings['group_id'],
+    editor = settings['editor']
+    user_token, group_id = settings['access_token'], settings['group_id']
+    vk_token = (VkApi(token=user_token)).get_api()
+    last_message = vk.messages.getHistory(**config, group_id=group_id,
                                           count=1, offset=1, user_id=editor)
     id = last_message['items'][0]['text']
     id = id[1:(id.find("]"))]
@@ -219,7 +214,8 @@ def del_reminder(vk, config, object):
                                      keyboard=kb.kb_exit())
 
 
-def start(vk, config, object):
+def start(vk, settings, config, object):
+    editor = settings['editor']
     user_id = object.message['from_id']
     if user_id == editor:
         perm = 1
