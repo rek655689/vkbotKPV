@@ -120,7 +120,11 @@ def intr(vk, config, object):
         if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'intr')
         else:
-            if object.message['attachments']:
+            if not object.message['attachments']:
+                vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
+                                 message='Отправь скриншот своего профиля со страницы Мой кот/Моя кошка',
+                                 keyboard=kb.kb_exit())
+            else:
                 url = (((((object.message['attachments'])[0])['photo'])['sizes'])[-1])['url']
                 database.add_step(user_id, 6, 'intr')
                 vk_name = vk.users.get(user_ids=user_id, fields='first_name, last_name')[0]
@@ -129,23 +133,19 @@ def intr(vk, config, object):
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                  message='Твоя заявка была отправлена редактору группы, осталось дождаться её одобрения',
                                  )
-            else:
-                vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                                 message='Отправь скриншот своего профиля со страницы Мой кот/Моя кошка',
-                                 keyboard=kb.kb_exit())
 
-            # ОТПРАВКА РЕДАКТОРУ
-            result = database.get_req(user_id)
-            for x in result:
-                id, name, last_name, position = x[0], str(x[1]), x[2], str(x[3])
-            if last_name is None:
-                last_name = ''
-            else:
-                last_name = str(last_name)
-            vk.messages.send(**config, random_id=get_random_id(), user_id=editor,
-                             message=f"[{user_id}] \n {name} (ранее {last_name}) \n {position} \n https://catwar.su/cat{id} \n {url}",
-                             keyboard=kb.kb_request()
-                             )
+                # ОТПРАВКА РЕДАКТОРУ
+                result = database.get_req(user_id)
+                for x in result:
+                    id, name, last_name, position = x[0], str(x[1]), x[2], str(x[3])
+                if last_name is None:
+                    last_name = ''
+                else:
+                    last_name = str(last_name)
+                vk.messages.send(**config, random_id=get_random_id(), user_id=editor,
+                                 message=f"[{user_id}] \n {name} (ранее {last_name}) \n {position} \n https://catwar.su/cat{id} \n {url}",
+                                 keyboard=kb.kb_request()
+                                 )
 
     if step == 6:  # ожидание одобрения
         vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
