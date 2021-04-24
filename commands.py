@@ -18,8 +18,7 @@ def isMember(vk, token, user_id, group_id):
 
 
 def editor_answer(vk, settings, config, object):
-    editor = settings['editor']
-    user_token, group_id = settings['access_token'], settings['group_id']
+    user_token, group_id, editor = settings['access_token'], settings['group_id'], settings['editor']
     vk_token = (VkApi(token=user_token)).get_api()
     last_message = vk.messages.getHistory(**config, group_id=group_id,
                                           count=1, offset=1, user_id=editor)
