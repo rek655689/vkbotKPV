@@ -2,7 +2,7 @@ import commands
 import introduction
 import yaml
 
-with open('settings.yaml', encoding='utf8') as f:
+with open('./settings.yaml', encoding='utf8') as f:
     settings = yaml.safe_load(f)
     editor = settings['editor']
 

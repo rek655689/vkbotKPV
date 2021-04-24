@@ -4,7 +4,7 @@ import requests
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 import handler
 
-with open('settings.yaml', encoding='utf8') as f:
+with open('./settings.yaml', encoding='utf8') as f:
     settings = yaml.safe_load(f)
 
 session = requests.Session()

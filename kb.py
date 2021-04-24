@@ -60,6 +60,8 @@ def kb_action(times):
     keyboard = VkKeyboard(one_time=True)
     for i in times:
         keyboard.add_button(i, color=VkKeyboardColor.SECONDARY)
+        keyboard.add_line()
+    keyboard.add_button('Выйти', color=VkKeyboardColor.NEGATIVE)
     return keyboard.get_keyboard()
 
 
@@ -67,4 +69,5 @@ def kb_del():
     keyboard = VkKeyboard(one_time=True)
     keyboard.add_button('Одно', color=VkKeyboardColor.SECONDARY)
     keyboard.add_button('Все', color=VkKeyboardColor.SECONDARY)
+    keyboard.add_button('Выйти', color=VkKeyboardColor.NEGATIVE)
     return keyboard.get_keyboard()

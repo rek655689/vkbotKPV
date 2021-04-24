@@ -15,7 +15,7 @@ def isMember(vk, token, user_id, group_id):
     return 0
 
 
-with open('settings.yaml', encoding='utf8') as f:
+with open('./settings.yaml', encoding='utf8') as f:
     settings = yaml.safe_load(f)
     user_token, group_id, editor = settings['access_token'], settings['group_id'], settings['editor']
 
@@ -112,7 +112,8 @@ def create_reminder(vk, config, object):
 
             else:
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                                 message='Проверь правильность ввода')
+                                 message='Проверь правильность ввода',
+                                 keyboard=kb.kb_exit())
 
     if step == 2:  # ввел время
         if object.message['text'].lower() == 'выйти':
@@ -132,7 +133,8 @@ def create_reminder(vk, config, object):
                                      )
             else:
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                                 message='Проверь правильность ввода')
+                                 message='Проверь правильность ввода',
+                                 keyboard=kb.kb_exit())
 
 
 def show_reminders(vk, config, object):
@@ -176,37 +178,45 @@ def del_reminder(vk, config, object):
                                  )
 
     if step == 2:
-        if not re.search('[^Ёа-я ]', object.message['text'].lower(), flags=re.IGNORECASE):
-            for c in actions.action_list:
-                if object.message['text'].lower() in c.vars:
-                    name = c.get_var_name()
-                    database.del_add_action(user_id, name)
-                    vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                                     message='Выбери время:',
-                                     keyboard=kb.kb_action(c.times),
-                                     )
-                    database.add_step(user_id, 3, 'del_reminders')
+        if object.message['text'].lower() == 'выйти':
+            database.del_step(user_id, 'del_reminders')
         else:
-            vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                             message='Проверь правильность ввода')
+            if not re.search('[^Ёа-я ]', object.message['text'].lower(), flags=re.IGNORECASE):
+                for c in actions.action_list:
+                    if object.message['text'].lower() in c.vars:
+                        name = c.get_var_name()
+                        database.del_add_action(user_id, name)
+                        vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
+                                         message='Выбери время:',
+                                         keyboard=kb.kb_action(c.times),
+                                         )
+                        database.add_step(user_id, 3, 'del_reminders')
+            else:
+                vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
+                                 message='Проверь правильность ввода',
+                                     keyboard=kb.kb_exit())
 
     if step == 3:
-        time = object.message['text']
-        if not re.search('[^:0-9]', time, flags=re.IGNORECASE):
-            get_action = database.del_get_action(user_id)
-            action = eval(f'actions.{get_action}.vars[0]')
-            database.del_action(user_id, action, time)
+        if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'del_reminders')
-            vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                             message=(
-                                     action.title()
-                                     + ' в ' + time + ' удален(а) или у тебя не было такого напоминания'
-                                     )
-                             )
-
         else:
-            vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                             message='Проверь правильность ввода')
+            time = object.message['text']
+            if not re.search('[^:0-9]', time, flags=re.IGNORECASE):
+                get_action = database.del_get_action(user_id)
+                action = eval(f'actions.{get_action}.vars[0]')
+                database.del_action(user_id, action, time)
+                database.del_step(user_id, 'del_reminders')
+                vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
+                                 message=(
+                                         action.title()
+                                         + ' в ' + time + ' удален(а) или у тебя не было такого напоминания'
+                                         )
+                                 )
+
+            else:
+                vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
+                                 message='Проверь правильность ввода',
+                                     keyboard=kb.kb_exit())
 
 
 def start(vk, config, object):

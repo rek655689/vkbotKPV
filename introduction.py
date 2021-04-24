@@ -6,7 +6,7 @@ import kb
 import yaml
 import re
 
-with open('settings.yaml', encoding='utf8') as f:
+with open('./settings.yaml', encoding='utf8') as f:
     settings = yaml.safe_load(f)
 user_token, group_id, editor = settings['access_token'], settings['group_id'], settings['editor']
 vk_token = (VkApi(token=user_token)).get_api()
@@ -64,7 +64,8 @@ def intr(vk, config, object):
                     database.add_step(user_id, 3, 'intr')
             else:
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                                 message='Проверь правильность ввода')
+                                 message='Проверь правильность ввода',
+                                 keyboard=kb.kb_exit())
 
     if step == 22:  # получение предыдущего имени котёнка
         if object.message['text'].lower() == 'выйти':
@@ -80,7 +81,8 @@ def intr(vk, config, object):
                                  keyboard=kb.kb_exit())
             else:
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                                 message='Проверь правильность ввода')
+                                 message='Проверь правильность ввода',
+                                 keyboard=kb.kb_exit())
 
     if step == 3:  # получение айди
         if object.message['text'].lower() == 'выйти':
@@ -95,7 +97,8 @@ def intr(vk, config, object):
                                  keyboard=kb.kb_exit())
             else:
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                                 message='Проверь правильность ввода')
+                                 message='Проверь правильность ввода',
+                                 keyboard=kb.kb_exit())
 
     if step == 4:  # получение имени
         if object.message['text'].lower() == 'выйти':
@@ -110,20 +113,26 @@ def intr(vk, config, object):
                                  keyboard=kb.kb_exit())
             else:
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                                 message='Проверь правильность ввода')
+                                 message='Проверь правильность ввода',
+                                 keyboard=kb.kb_exit())
 
     if step == 5:  # получение скрина
         if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'intr')
         else:
-            url = (((((object.message['attachments'])[0])['photo'])['sizes'])[-1])['url']
-            database.add_step(user_id, 6, 'intr')
-            vk_name = vk.users.get(user_ids=user_id, fields='first_name, last_name')[0]
-            vk_name = vk_name['first_name'] + ' ' + vk_name['last_name']
-            database.add_inf(user_id, 'vk_name', vk_name)
-            vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                             message='Твоя заявка была отправлена редактору группы, осталось дождаться её одобрения',
-                             )
+            if object.message['attachments']:
+                url = (((((object.message['attachments'])[0])['photo'])['sizes'])[-1])['url']
+                database.add_step(user_id, 6, 'intr')
+                vk_name = vk.users.get(user_ids=user_id, fields='first_name, last_name')[0]
+                vk_name = vk_name['first_name'] + ' ' + vk_name['last_name']
+                database.add_inf(user_id, 'vk_name', vk_name)
+                vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
+                                 message='Твоя заявка была отправлена редактору группы, осталось дождаться её одобрения',
+                                 )
+            else:
+                vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
+                                 message='Отправь скриншот своего профиля со страницы Мой кот/Моя кошка',
+                                 keyboard=kb.kb_exit())
 
             # ОТПРАВКА РЕДАКТОРУ
             result = database.get_req(user_id)
