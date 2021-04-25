@@ -4,7 +4,7 @@ import requests
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 import handler
 
-with open('/settings.yaml', encoding='utf8') as f:
+with open('settings.yaml', encoding='utf8') as f:
     settings = yaml.safe_load(f)
 
 session = requests.Session()
@@ -20,5 +20,9 @@ config = {'key': key, 'server': server, 'ts': ts}
 while True:
     for event in longpoll.listen():
         if event.type == VkBotEventType.MESSAGE_NEW:
-            handler.answer(vk, settings, config, event.object)
-            continue
+            try:
+                handler.answer(vk, settings, config, event.object)
+                continue
+            except Exception as e:
+                with open('errors.txt', 'a') as f:
+                    f.write(e + '\n')

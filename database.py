@@ -1,6 +1,6 @@
 import mysql.connector, yaml
 
-with open('/settings.yaml', encoding='utf8') as f:
+with open('settings.yaml', encoding='utf8') as f:
     settings = yaml.safe_load(f)
     settings = settings['database']
 
@@ -29,7 +29,7 @@ def add_action(user_id, action, time):
         add = 'INSERT reminders (Id, Action) VALUES(%s, %s)'
         data = (user_id, action)
     else:
-        add = 'UPDATE reminders SET Time=%s WHERE Id = %s AND Time=""'
+        add = 'UPDATE reminders SET Time=%s WHERE Id = %s AND Time="0"'
         data = (time, user_id)
     cursor.execute(add, data)
     connection.commit()
@@ -41,7 +41,7 @@ def add_action(user_id, action, time):
 def show_reminders(user_id):
     connection = get_connection()
     cursor = connection.cursor()
-    add = "SELECT Action, Time FROM reminders WHERE Id = %s ORDER BY Action"
+    add = "SELECT Action, Time FROM reminders WHERE Id = %s ORDER BY Time"
     data = (user_id,)
     cursor.execute(add, data)
     result = cursor.fetchall()

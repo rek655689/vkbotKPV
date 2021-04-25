@@ -11,20 +11,20 @@ def answer(vk, settings, config, object):
             if object.message['text'].lower() == 'принять' or object.message['text'].lower() == 'отклонить':
                 commands.editor_answer(vk, settings, config, object)
             if object.message['text'].lower() == 'заявки':
-                commands.req(vk, config, object)
+                commands.req(vk, settings, config, object)
 
         table = commands.check_in_table(user_id)
         if table:
             if table == 'create_reminder':
-                commands.create_reminder(vk, config, object)
+                commands.create_reminder(vk, settings, config, object)
             elif table == 'del_reminders':
-                commands.del_reminder(vk, config, object)
+                commands.del_reminder(vk, settings, config, object)
         elif object.message['text'].lower() == 'создать напоминание':
-            commands.create_reminder(vk, config, object)
+            commands.create_reminder(vk, settings, config, object)
         elif object.message['text'].lower() == 'мои напоминания':
-            commands.show_reminders(vk, config, object)
+            commands.show_reminders(vk, settings, config, object)
         elif object.message['text'].lower() == 'удалить напоминания':
-            commands.del_reminder(vk, config, object)
+            commands.del_reminder(vk, settings, config, object)
         else:
             commands.start(vk, settings, config, object)
     else:

@@ -30,7 +30,8 @@ def editor_answer(vk, settings, config, object):
                          message='Принято',
                          )
         vk.messages.send(**config, random_id=get_random_id(), user_id=id,
-                         message='Заявка успешно принята! Не забудьте ознакомиться с правилами',
+                         message='Заявка успешно принята! Не забудь ознакомиться с правилами:\n'
+                                 '>> https://vk.com/page-165101106_55801147 <<',
                          )
     elif object.message['text'].lower() == 'отклонить':
         vk_token.groups.removeUser(group_id=group_id, user_id=id)
@@ -60,7 +61,7 @@ def check_in_table(user_id):
 ###################### РЕДАКТОР #######################
 
 
-def req(vk, config, object):
+def req(vk, settings, config, object):
     user_id = object.message['from_id']
     result = database.show_requests()
     message = ''
@@ -74,12 +75,13 @@ def req(vk, config, object):
     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id, dont_parse_links=1,
                      message=message,
                      )
+    start(vk, settings, config, object)
 
 
 ###################### START ##########################
 
 
-def create_reminder(vk, config, object):
+def create_reminder(vk, settings, config, object):
     user_id = object.message['from_id']
     step = int(database.check_step(user_id, 'create_reminder'))
 
@@ -120,18 +122,20 @@ def create_reminder(vk, config, object):
                 except mysql.IntegrityError:
                     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                      message='У тебя уже есть такое напоминание')
+                    start(vk, settings, config, object)
                 else:
                     database.del_step(user_id, 'create_reminder')
                     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                      message='Успешно!',
                                      )
+                    start(vk, settings, config, object)
             else:
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                  message='Проверь правильность ввода',
                                  keyboard=kb.kb_exit())
 
 
-def show_reminders(vk, config, object):
+def show_reminders(vk, settings, config, object):
     user_id = object.message['from_id']
     result = database.show_reminders(user_id)
     message = ''
@@ -142,9 +146,10 @@ def show_reminders(vk, config, object):
     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                      message=message,
                      )
+    start(vk, settings, config, object)
 
 
-def del_reminder(vk, config, object):
+def del_reminder(vk, settings, config, object):
     user_id = object.message['from_id']
     step = int(database.check_step(user_id, 'del_reminders'))
 
@@ -170,6 +175,7 @@ def del_reminder(vk, config, object):
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                  message='Все напоминания успешно удалены',
                                  )
+                start(vk, settings, config, object)
 
     if step == 2:
         if object.message['text'].lower() == 'выйти':
@@ -188,7 +194,7 @@ def del_reminder(vk, config, object):
             else:
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                  message='Проверь правильность ввода',
-                                     keyboard=kb.kb_exit())
+                                 keyboard=kb.kb_exit())
 
     if step == 3:
         if object.message['text'].lower() == 'выйти':
@@ -206,11 +212,12 @@ def del_reminder(vk, config, object):
                                          + ' в ' + time + ' удален(а) или у тебя не было такого напоминания'
                                          )
                                  )
+                start(vk, settings, config, object)
 
             else:
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                  message='Проверь правильность ввода',
-                                     keyboard=kb.kb_exit())
+                                 keyboard=kb.kb_exit())
 
 
 def start(vk, settings, config, object):
