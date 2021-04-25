@@ -75,7 +75,6 @@ def req(vk, settings, config, object):
     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id, dont_parse_links=1,
                      message=message,
                      )
-    start(vk, settings, config, object)
 
 
 ###################### START ##########################
