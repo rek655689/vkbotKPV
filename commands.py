@@ -31,11 +31,13 @@ def editor_answer(vk, settings, config, object):
                          )
         vk.messages.send(**config, random_id=get_random_id(), user_id=id,
                          message='Заявка успешно принята! Не забудь ознакомиться с правилами:\n'
-                                 '>> https://vk.com/page-165101106_55801147 <<',
+                                 '>> https://vk.com/page-165101106_55801147 <<\n\nНапиши любое сообщение, '
+                                 'чтобы перейти к меню бота',
                          )
     elif object.message['text'].lower() == 'отклонить':
         vk_token.groups.removeUser(group_id=group_id, user_id=id)
         database.del_requests(id)
+        database.del_step(id, 'intr')
         vk.messages.send(**config, random_id=get_random_id(), user_id=editor,
                          message='Не принято',
                          )
@@ -56,6 +58,15 @@ def check_in_table(user_id):
             return tables[0]
         elif result[1] != 0:
             return tables[1]
+
+
+def table(vk, settings, config, object):
+    user_id = object.message['from_id']
+    attachment = 'photo-169574362_457239338'
+    vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
+                     message='', attachment=attachment
+                     )
+    start(vk, settings, config, object)
 
 
 ###################### РЕДАКТОР #######################
@@ -86,7 +97,9 @@ def create_reminder(vk, settings, config, object):
 
     if step == 0:  # нажал создать
         vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                         message='Напиши название деятельности, например, патруль',
+                         message='Ты можешь создать напоминание за 10 минут до какой-либо деятельности. Напиши её '
+                                 'название, например, патруль или пп. Если твоя формулировка не подходит, попробуй '
+                                 'написать другую',
                          keyboard=kb.kb_exit()
                          )
         database.add_step(user_id, 1, 'create_reminder')
@@ -94,6 +107,7 @@ def create_reminder(vk, settings, config, object):
     if step == 1:  # ввел название
         if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'create_reminder')
+            start(vk, settings, config, object)
         else:
             if not re.search('[^Ёа-я ]', object.message['text'], flags=re.IGNORECASE):
                 for c in actions.action_list:
@@ -114,8 +128,9 @@ def create_reminder(vk, settings, config, object):
         if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'create_reminder')
             database.del_all(user_id)
+            start(vk, settings, config, object)
         else:
-            if not re.search('[^:0-9]', object.message['text'], flags=re.IGNORECASE):
+            if not re.search('[^:0-9]', object.message['text'], flags=re.IGNORECASE) and len(object.message['text']) == 4 and (object.message['text'])[2] == ':':
                 try:
                     database.add_action(user_id, None, object.message['text'])
                 except mysql.IntegrityError:
@@ -162,6 +177,7 @@ def del_reminder(vk, settings, config, object):
     if step == 1:  # ввел название
         if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'del_reminders')
+            start(vk, settings, config, object)
         else:
             if object.message['text'].lower() == 'одно' or object.message['text'] == '1':
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
@@ -179,6 +195,7 @@ def del_reminder(vk, settings, config, object):
     if step == 2:
         if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'del_reminders')
+            start(vk, settings, config, object)
         else:
             if not re.search('[^Ёа-я ]', object.message['text'].lower(), flags=re.IGNORECASE):
                 for c in actions.action_list:
@@ -198,9 +215,10 @@ def del_reminder(vk, settings, config, object):
     if step == 3:
         if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'del_reminders')
+            start(vk, settings, config, object)
         else:
             time = object.message['text']
-            if not re.search('[^:0-9]', time, flags=re.IGNORECASE):
+            if not re.search('[^:0-9]', time, flags=re.IGNORECASE) and len(object.message['text']) == 4 and (object.message['text'])[2] == ':':
                 get_action = database.del_get_action(user_id)
                 action = eval(f'actions.{get_action}.vars[0]')
                 database.del_action(user_id, action, time)

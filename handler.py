@@ -25,6 +25,8 @@ def answer(vk, settings, config, object):
             commands.show_reminders(vk, settings, config, object)
         elif object.message['text'].lower() == 'удалить напоминания':
             commands.del_reminder(vk, settings, config, object)
+        elif object.message['text'].lower() == 'таблица занятости':
+            commands.table(vk, settings, config, object)
         else:
             commands.start(vk, settings, config, object)
     else:

@@ -50,6 +50,8 @@ def kb_start(perm):
     keyboard.add_button('Мои напоминания', color=VkKeyboardColor.PRIMARY)
     keyboard.add_line()
     keyboard.add_button('Удалить напоминания', color=VkKeyboardColor.NEGATIVE)
+    keyboard.add_line()
+    keyboard.add_button('Таблица занятости', color=VkKeyboardColor.SECONDARY)
     if perm:
         keyboard.add_line()
         keyboard.add_button('Заявки', color=VkKeyboardColor.SECONDARY)
