@@ -25,4 +25,4 @@ while True:
                 continue
             except Exception as e:
                 with open('errors.txt', 'a') as f:
-                    f.write(e)
+                    f.write(str(e))
