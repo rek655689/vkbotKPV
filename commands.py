@@ -76,7 +76,7 @@ def req(vk, settings, config, object):
     user_id = object.message['from_id']
     result = database.show_requests()
     message = ''
-    if message == '':
+    if not result:
         message = 'Заявок нет'
     else:
         for x in result:
@@ -97,9 +97,10 @@ def create_reminder(vk, settings, config, object):
 
     if step == 0:  # нажал создать
         vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                         message='Ты можешь создать напоминание за 10 минут до какой-либо деятельности. Напиши её '
-                                 'название, например, патруль или пп. Если твоя формулировка не подходит, попробуй '
-                                 'написать другую',
+                         message='Ты можешь создать напоминание за 10 минут до какой-либо деятельности, для этого '
+                                 'тебе необходимо написать её название. Можно использовать разные варианты, '
+                                 'например:\n— пограничный патруль\n— оп\n— мохосбор\nЕсли твоё сообщение не читается, '
+                                 'попробуй другую формулировку',
                          keyboard=kb.kb_exit()
                          )
         database.add_step(user_id, 1, 'create_reminder')
