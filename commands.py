@@ -82,7 +82,7 @@ def req(vk, settings, config, object):
         for x in result:
             vk_id, vk_name, id, name, position = str(x[0]), x[2], str(x[3]), x[4].title(), x[5]
             message = f'{message}{position}\n|-\n| [[*id{vk_id}|{vk_name}]]\n| [*{name}|{id}]\n| [https://catwar.su/cat{id}]\n'
-        database.del_requests()
+        database.del_requests('')
     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id, dont_parse_links=1,
                      message=message,
                      )
