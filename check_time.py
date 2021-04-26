@@ -36,7 +36,7 @@ def minutes(t):
 for action in actions.action_list:
     name = action.get_var_name()
     for times in action.times:
-        schedule.every().day.at(minutes(times)).do((eval('actions.' + name + '.send')), vk, config, times)
+        schedule.every().day.at(minutes(times)).do(eval('actions.' + name + '.send'), vk, config, times)
 
 while True:
     schedule.run_pending()

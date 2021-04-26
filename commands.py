@@ -62,7 +62,7 @@ def check_in_table(user_id):
 
 def table(vk, settings, config, object):
     user_id = object.message['from_id']
-    attachment = 'photo-169574362_457239338'
+    attachment = 'photo-203355465_457239017'
     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                      message='', attachment=attachment
                      )
@@ -130,7 +130,7 @@ def create_reminder(vk, settings, config, object):
             database.del_all(user_id)
             start(vk, settings, config, object)
         else:
-            if not re.search('[^:0-9]', object.message['text'], flags=re.IGNORECASE) and len(object.message['text']) == 4 and (object.message['text'])[2] == ':':
+            if not re.search('[^:0-9]', object.message['text'], flags=re.IGNORECASE) and len(object.message['text']) == 5 and (object.message['text'])[2] == ':':
                 try:
                     database.add_action(user_id, None, object.message['text'])
                 except mysql.IntegrityError:
@@ -218,7 +218,7 @@ def del_reminder(vk, settings, config, object):
             start(vk, settings, config, object)
         else:
             time = object.message['text']
-            if not re.search('[^:0-9]', time, flags=re.IGNORECASE) and len(object.message['text']) == 4 and (object.message['text'])[2] == ':':
+            if not re.search('[^:0-9]', time, flags=re.IGNORECASE) and len(object.message['text']) == 5 and (object.message['text'])[2] == ':':
                 get_action = database.del_get_action(user_id)
                 action = eval(f'actions.{get_action}.vars[0]')
                 database.del_action(user_id, action, time)
