@@ -62,7 +62,7 @@ def check_in_table(user_id):
 
 def table(vk, settings, config, object):
     user_id = object.message['from_id']
-    attachment = 'photo-203355465_457239017'
+    attachment = 'photo-165101106_457239755'
     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                      message='', attachment=attachment
                      )

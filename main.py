@@ -19,7 +19,7 @@ config = {'key': key, 'server': server, 'ts': ts}
 
 while True:
     for event in longpoll.listen():
-        if event.type == VkBotEventType.MESSAGE_NEW:
+        if event.type == VkBotEventType.MESSAGE_NEW and event.from_user:
             try:
                 handler.answer(vk, settings, config, event.object)
                 continue
