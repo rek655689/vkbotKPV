@@ -3,6 +3,7 @@ import yaml
 import requests
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 import handler
+import time
 
 with open('settings.yaml', encoding='utf8') as f:
     settings = yaml.safe_load(f)
@@ -24,5 +25,7 @@ while True:
                 handler.answer(vk, settings, config, event.object)
                 continue
             except Exception as e:
+                time.sleep(3)
                 with open('errors.txt', 'a') as f:
                     f.write(str(e))
+                continue
