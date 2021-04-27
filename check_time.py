@@ -39,5 +39,11 @@ for action in actions.action_list:
         schedule.every().day.at(minutes(times)).do(eval('actions.' + name + '.send'), vk, config, times)
 
 while True:
-    schedule.run_pending()
-    time.sleep(1)
+    try:
+        schedule.run_pending()
+        time.sleep(1)
+    except Exception as e:
+        time.sleep(3)
+        with open('errors.txt', 'a') as f:
+            f.write(str(e))
+        continue
