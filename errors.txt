@@ -1,1 +1,1 @@
-[100] One of the parameters specified was missing or invalid: message is empty or invalid[100] One of the parameters specified was missing or invalid: message is empty or invalid[100] One of the parameters specified was missing or invalid: message is empty or invalid
+[100] One of the parameters specified was missing or invalid: you should specify peer_id, user_id, domain, chat_id or user_ids param'tuple' object has no attribute 'append'

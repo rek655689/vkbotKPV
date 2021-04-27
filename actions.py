@@ -26,7 +26,10 @@ class Actions:
             self.times.append(k.lower())
 
     def send(self, vk, config, times):
-        ids = database.check_ids(self.vars[0], times)[0]
+        ids = list()
+        result = database.check_ids(self.vars[0], times)
+        for x in result:
+            ids.append(x[0])
         for action in action_list:
             if times in action.times:
                 name = action.vars[0]
@@ -66,3 +69,7 @@ grass.times = ['16:00']
 moss = Actions()
 moss.vars = ['сбор мха', 'мох', 'мохосбор']
 moss.times = ['17:00']
+
+test = Actions()
+test.vars = ['тест']
+test.times = ['16:50']
