@@ -77,7 +77,7 @@ def del_all(user_id):
 def show_requests():
     connection = get_connection()
     cursor = connection.cursor()
-    add = "SELECT * FROM intr ORDER BY name"
+    add = "SELECT * FROM intr WHERE step = '6' ORDER BY name"
     cursor.execute(add)
     result = cursor.fetchall()
     cursor.close()
