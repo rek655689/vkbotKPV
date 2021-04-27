@@ -68,7 +68,11 @@ grass.times = ['16:00']
 
 moss = Actions()
 moss.vars = ['сбор мха', 'мох', 'мохосбор']
-moss.times = ['17:00']
+moss.times = ['16:55']
+
+web = Actions()
+web.vars = ['сбор паутины', 'паутина', 'пау', 'паусбор']
+web.times = ['16:00']
 
 test = Actions()
 test.vars = ['тест']
