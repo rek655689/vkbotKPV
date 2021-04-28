@@ -5,13 +5,6 @@ with open('settings.yaml', encoding='utf8') as f:
     settings = yaml.safe_load(f)
 
 token, confirmation_token, group_id = settings['token'], settings['confirmation_token'], settings['group_id']
-vk_session = vk_api.VkApi(token=token)
-longpoll = VkBotLongPoll(vk_session, group_id, wait=25)
-vk = vk_session.get_api()
-LongPollServer = vk.groups.getLongPollServer(group_id=group_id)
-key, server, ts = LongPollServer['key'], LongPollServer['server'], LongPollServer['ts']
-
-config = {'key': key, 'server': server, 'ts': ts}
 
 
 def minutes(t):
@@ -33,17 +26,23 @@ def minutes(t):
     return t
 
 
-for action in actions.action_list:
-    name = action.get_var_name()
-    for times in action.times:
-        schedule.every().day.at(minutes(times)).do(eval('actions.' + name + '.send'), vk, config, times)
-
 while True:
+    vk_session = vk_api.VkApi(token=token)
+    longpoll = VkBotLongPoll(vk_session, group_id, wait=25)
+    vk = vk_session.get_api()
+    LongPollServer = vk.groups.getLongPollServer(group_id=group_id)
+    key, server, ts = LongPollServer['key'], LongPollServer['server'], LongPollServer['ts']
+    config = {'key': key, 'server': server, 'ts': ts}
+
+    for action in actions.action_list:
+        name = action.get_var_name()
+        for times in action.times:
+            schedule.every().day.at(minutes(times)).do(eval('actions.' + name + '.send'), vk, config, times)
+
     try:
         schedule.run_pending()
         time.sleep(1)
     except Exception as e:
-        time.sleep(3)
         with open('errors.txt', 'a') as f:
-            f.write(str(e))
+            f.write(str(e) + '\n')
         continue

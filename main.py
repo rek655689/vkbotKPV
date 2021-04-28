@@ -1,31 +1,26 @@
 import vk_api
 import yaml
-import requests
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 import handler
-import time
 
 with open('settings.yaml', encoding='utf8') as f:
     settings = yaml.safe_load(f)
-
-session = requests.Session()
 token, confirmation_token, group_id = settings['token'], settings['confirmation_token'], settings['group_id']
-vk_session = vk_api.VkApi(token=token)
-longpoll = VkBotLongPoll(vk_session, group_id, wait=25)
-vk = vk_session.get_api()
-LongPollServer = vk.groups.getLongPollServer(group_id=group_id)
-key, server, ts = LongPollServer['key'], LongPollServer['server'], LongPollServer['ts']
-
-config = {'key': key, 'server': server, 'ts': ts}
 
 while True:
+    vk_session = vk_api.VkApi(token=token)
+    longpoll = VkBotLongPoll(vk_session, group_id, wait=25)
+    vk = vk_session.get_api()
+    LongPollServer = vk.groups.getLongPollServer(group_id=group_id)
+    key, server, ts = LongPollServer['key'], LongPollServer['server'], LongPollServer['ts']
+    config = {'key': key, 'server': server, 'ts': ts}
+
     for event in longpoll.listen():
         if event.type == VkBotEventType.MESSAGE_NEW and event.from_user:
             try:
                 handler.answer(vk, settings, config, event.object)
                 continue
             except Exception as e:
-                time.sleep(3)
                 with open('errors.txt', 'a') as f:
-                    f.write(str(e))
+                    f.write(str(e) + '\n')
                 continue
