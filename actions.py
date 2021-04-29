@@ -30,12 +30,13 @@ class Actions:
         result = database.check_ids(self.vars[0], times)
         for x in result:
             ids.append(x[0])
-        for action in action_list:
-            if times in action.times:
-                name = action.vars[0]
-        vk.messages.send(**config, random_id=get_random_id(), peer_ids=ids,
-                         message=f'Через 10 минут будет {name}'
-                         )
+        if ids:
+            for action in action_list:
+                if times in action.times:
+                    name = action.vars[0]
+            vk.messages.send(**config, random_id=get_random_id(), peer_ids=ids,
+                             message=f'Через 10 минут будет {name}'
+                             )
 
     def get_var_name(self):
         for k, v in globals().items():
