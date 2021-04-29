@@ -26,10 +26,10 @@ def add_action(user_id, action, time):
     connection = get_connection()
     cursor = connection.cursor()
     if action is not None:
-        add = 'INSERT reminders (Id, Action) VALUES(%s, %s)'
+        add = 'INSERT reminders (id, action) VALUES(%s, %s)'
         data = (user_id, action)
     else:
-        add = 'UPDATE reminders SET Time=%s WHERE Id = %s AND Time="0"'
+        add = 'UPDATE reminders SET time=%s WHERE id = %s AND time="0"'
         data = (time, user_id)
     cursor.execute(add, data)
     connection.commit()
@@ -41,7 +41,7 @@ def add_action(user_id, action, time):
 def show_reminders(user_id):
     connection = get_connection()
     cursor = connection.cursor()
-    add = "SELECT Action, Time FROM reminders WHERE Id = %s ORDER BY Time"
+    add = "SELECT action, time FROM reminders WHERE id = %s ORDER BY time"
     data = (user_id,)
     cursor.execute(add, data)
     result = cursor.fetchall()
@@ -53,7 +53,7 @@ def show_reminders(user_id):
 def del_action(user_id, action, time):
     connection = get_connection()
     cursor = connection.cursor()
-    add = "DELETE FROM reminders WHERE Id = %s AND Action = %s AND Time = %s"
+    add = "DELETE FROM reminders WHERE id = %s AND action = %s AND time = %s"
     data = (user_id, action, time)
     cursor.execute(add, data)
     connection.commit()
@@ -65,7 +65,7 @@ def del_action(user_id, action, time):
 def del_all(user_id):
     connection = get_connection()
     cursor = connection.cursor()
-    add = "DELETE FROM reminders WHERE Id = %s AND Time = '0'"
+    add = "DELETE FROM reminders WHERE id = %s AND time = '0'"
     data = (user_id,)
     cursor.execute(add, data)
     connection.commit()
@@ -104,7 +104,7 @@ def del_requests(user_id):
 def check_ids(action, time):
     connection = get_connection()
     cursor = connection.cursor()
-    add = "SELECT Id FROM reminders WHERE Action = %s and Time = %s"
+    add = "SELECT id FROM reminders WHERE action = %s and time = %s"
     data = (action, time)
     cursor.execute(add, data)
     result = cursor.fetchall()
