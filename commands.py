@@ -20,9 +20,13 @@ def isMember(vk, token, user_id, group_id):
 def editor_answer(vk, settings, config, object):
     user_token, group_id, editor = settings['access_token'], settings['group_id'], settings['editor']
     vk_token = (VkApi(token=user_token)).get_api()
-    last_message = vk.messages.getHistory(**config, group_id=group_id,
-                                          count=1, offset=1, user_id=editor)
-    id = last_message['items'][0]['text']
+    i = 1
+    id = '1'
+    while id[0] != '[':
+        last_message = vk.messages.getHistory(**config, group_id=group_id,
+                                              count=1, offset=i, user_id=editor)
+        id = last_message['items'][0]['text']
+        i += 1
     id = id[1:(id.find("]"))]
     if object.message['text'].lower() == 'принять':
         vk_token.groups.approveRequest(group_id=group_id, user_id=id)
