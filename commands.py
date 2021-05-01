@@ -132,7 +132,7 @@ def create_reminder(vk, settings, config, object):
     if step == 2:  # ввел время
         if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'create_reminder')
-            database.del_all(user_id)
+            database.del_all(user_id, '0')
             start(vk, settings, config, object)
         else:
             if not re.search('[^:0-9]', object.message['text'], flags=re.IGNORECASE) and len(object.message['text']) == 5 and (object.message['text'])[2] == ':':
@@ -179,7 +179,7 @@ def del_reminder(vk, settings, config, object):
                          )
         database.add_step(user_id, 1, 'del_reminders')
 
-    if step == 1:  # ввел название
+    if step == 1:  # ввел
         if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'del_reminders')
             start(vk, settings, config, object)
