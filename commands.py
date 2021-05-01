@@ -141,6 +141,7 @@ def create_reminder(vk, settings, config, object):
                 except mysql.IntegrityError:
                     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                      message='У тебя уже есть такое напоминание')
+                    database.del_step(user_id, 'create_reminder')
                     start(vk, settings, config, object)
                 else:
                     database.del_step(user_id, 'create_reminder')
