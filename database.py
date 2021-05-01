@@ -66,9 +66,9 @@ def del_all(user_id, time):
     connection = get_connection()
     cursor = connection.cursor()
     if time:
-        add = "DELETE FROM reminders WHERE id = %s AND time = '0'"
-    else:
         add = "DELETE FROM reminders WHERE id = %s"
+    else:
+        add = "DELETE FROM reminders WHERE id = %s AND time = '0'"
     data = (user_id,)
     cursor.execute(add, data)
     connection.commit()
