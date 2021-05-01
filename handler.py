@@ -12,8 +12,6 @@ def answer(vk, settings, config, object):
                 commands.editor_answer(vk, settings, config, object)
             if object.message['text'].lower() == 'заявки':
                 commands.req(vk, settings, config, object)
-            if object.message['text'].lower() == 'проверка страниц':
-                commands.check_pages(vk, settings, config, object)
 
         table = commands.check_in_table(user_id)
         if table:

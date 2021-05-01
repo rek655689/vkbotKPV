@@ -1,14 +1,11 @@
 from vk_api import VkApi
 from vk_api.utils import get_random_id
 from mysql.connector import errors as mysql
-from requests_html import HTMLSession
-from bs4 import BeautifulSoup
 
 import database
 import kb
 import re
 import actions
-import time
 
 
 def isMember(vk, token, user_id, group_id):
@@ -95,50 +92,6 @@ def req(vk, settings, config, object):
                      )
 
 
-def check_pages(vk, settings, config, object):
-    user_token, group_id, editor, catwar = settings['access_token'], settings['group_id'], settings['editor'], settings['catwar']
-    vk_token = (VkApi(token=user_token)).get_api()
-
-    # авторизация
-    url = 'https://catwar.su/ajax/login'
-    user_agent_val = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ' \
-                     'Chrome/90.0.4430.93 Safari/537.36 '
-    session = HTMLSession()
-    session.headers.update({'Referer': url})
-    session.headers.update({'User-Agent': user_agent_val})
-    session.post(url, {**catwar})
-
-    page_ids = [56341561]
-    for x in page_ids:
-        #todo: проверка вкшных имён
-
-        # проверка на нахождение в клане
-        orig_page = vk_token.pages.get(**config, owner_id=-group_id, page_id=x, need_source=1)
-        orig_page = orig_page['source']
-        page = orig_page[(orig_page.find("{|") + 2):(orig_page.find("|}"))]
-
-        ids = re.findall("\|[0-9]+", page)
-        i = 0
-        while i < len(ids):
-            ids[i] = ids[i][1:]
-            i += 1
-
-        dels = []
-        for id in ids:
-            response = session.get(f'https://catwar.su/cat{id}')
-            profile = (response.content).decode("utf-8")
-            soup = BeautifulSoup(profile, 'html.parser')
-            position = soup.find('i')
-            if not position:
-                dels.append(id)
-            session.headers.update({'User-Agent': user_agent_val})
-            time.sleep(1)
-
-    print(dels)
-    start(vk, settings, config, object)
-
-
-
 ###################### START ##########################
 
 
@@ -182,7 +135,8 @@ def create_reminder(vk, settings, config, object):
             database.del_all(user_id)
             start(vk, settings, config, object)
         else:
-            if not re.search('[^:0-9]', object.message['text'], flags=re.IGNORECASE) and len(object.message['text']) == 5 and (object.message['text'])[2] == ':':
+            if not re.search('[^:0-9]', object.message['text'], flags=re.IGNORECASE) and len(
+                    object.message['text']) == 5 and (object.message['text'])[2] == ':':
                 try:
                     database.add_action(user_id, None, object.message['text'])
                 except mysql.IntegrityError:
@@ -270,7 +224,8 @@ def del_reminder(vk, settings, config, object):
             start(vk, settings, config, object)
         else:
             time = object.message['text']
-            if not re.search('[^:0-9]', time, flags=re.IGNORECASE) and len(object.message['text']) == 5 and (object.message['text'])[2] == ':':
+            if not re.search('[^:0-9]', time, flags=re.IGNORECASE) and len(object.message['text']) == 5 and \
+                    (object.message['text'])[2] == ':':
                 get_action = database.del_get_action(user_id)
                 action = eval(f'actions.{get_action}.vars[0]')
                 database.del_action(user_id, action, time)
@@ -279,7 +234,7 @@ def del_reminder(vk, settings, config, object):
                                  message=(
                                          action.title()
                                          + ' в ' + time + ' удален(а) или у тебя не было такого напоминания'
-                                         )
+                                 )
                                  )
                 start(vk, settings, config, object)
 
