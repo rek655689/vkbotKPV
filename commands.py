@@ -135,7 +135,8 @@ def create_reminder(vk, settings, config, object):
             database.del_all(user_id, False)
             start(vk, settings, config, object)
         else:
-            if not re.search('[^:0-9]', object.message['text'], flags=re.IGNORECASE) and len(object.message['text']) == 5 and (object.message['text'])[2] == ':':
+            if not re.search('[^:0-9]', object.message['text'], flags=re.IGNORECASE) and len(
+                    object.message['text']) == 5 and (object.message['text'])[2] == ':':
                 try:
                     database.add_action(user_id, None, object.message['text'])
                 except mysql.IntegrityError:
@@ -224,7 +225,8 @@ def del_reminder(vk, settings, config, object):
             start(vk, settings, config, object)
         else:
             time = object.message['text']
-            if not re.search('[^:0-9]', time, flags=re.IGNORECASE) and len(object.message['text']) == 5 and (object.message['text'])[2] == ':':
+            if not re.search('[^:0-9]', time, flags=re.IGNORECASE) and len(object.message['text']) == 5 and \
+                    (object.message['text'])[2] == ':':
                 get_action = database.del_get_action(user_id)
                 action = eval(f'actions.{get_action}.vars[0]')
                 database.del_action(user_id, action, time)
@@ -233,7 +235,7 @@ def del_reminder(vk, settings, config, object):
                                  message=(
                                          action.title()
                                          + ' в ' + time + ' удален(а) или у тебя не было такого напоминания'
-                                         )
+                                 )
                                  )
                 start(vk, settings, config, object)
 
