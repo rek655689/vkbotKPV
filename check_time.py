@@ -25,7 +25,12 @@ def minutes(t):
     t = f'{h1}{h2}:{min1}{min2}'
     return t
 
-
+vk_session = vk_api.VkApi(token=token)
+longpoll = VkBotLongPoll(vk_session, group_id, wait=25)
+vk = vk_session.get_api()
+LongPollServer = vk.groups.getLongPollServer(group_id=group_id)
+key, server, ts = LongPollServer['key'], LongPollServer['server'], LongPollServer['ts']
+config = {'key': key, 'server': server, 'ts': ts}
 
 
 for action in actions.action_list:
