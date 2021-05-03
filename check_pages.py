@@ -29,8 +29,15 @@ def check_pages(vk, config):
     session.headers.update({'User-Agent': user_agent_val})
     session.post(url, {**catwar})
 
-    guard, hunter = ('страж', 'стражница'), ('охотник', 'охотница')
-    page_ids = {guard: 56341561, hunter: 56391615}
+    heads = ('врачеватель', 'врачевательница', 'ученик врачевателя', 'ученица врачевателя', 'советник', 'советница')
+    elders = ('старейшина')
+    elects = ('избранник духов', 'избранница духов')
+    guards = ('страж', 'стражница')
+    hunters = ('охотник', 'охотница')
+    futures = ('будущий охотник', 'будущая охотница')
+    others = ('котёнок', 'переходящий', 'переходящая')
+    page_ids = {heads: 56490990, elders: 56591896, elects: 56846221,  guards: 56807806,
+                hunters: 56807807, futures: 56490171, others: 56808867}
     wrong_names, dels, not_position = [], [], []
     m_1, m_2, m_3 = '', '', ''
 
@@ -80,7 +87,8 @@ def check_pages(vk, config):
             soup = BeautifulSoup(profile, 'html.parser')
             position = soup.find('i')
             if not position:
-                dels.append(f'{key[0]} — {id}')
+                if id != 539719 or id != 1068731:
+                    dels.append(f'{key[0]} — {id}')
             else:
                 position = position.text
                 position = re.match('[^i<>/]+', position).group()
