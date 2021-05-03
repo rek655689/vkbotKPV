@@ -90,11 +90,20 @@ def intr(vk, settings, config, object):
         else:
             id = object.message['text']
             if not re.search('[^0-9]', id, flags=re.IGNORECASE):
-                database.add_inf(user_id, 'id', id)
-                database.add_step(user_id, 4, 'intr')
-                vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                                 message='Введи своё имя на CatWar',
-                                 keyboard=kb.kb_exit())
+                if id == '172073':
+                    vk_token.groups.removeUser(group_id=group_id, user_id=user_id)
+                    database.del_requests(id)
+                    database.del_step(id, 'intr')
+                    vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
+                                     message='К сожалению, по некоторым причинам заявка была отклонена. По всем '
+                                             'вопросам обращайся к [id478936081|редактору] группы '
+                                     )
+                else:
+                    database.add_inf(user_id, 'id', id)
+                    database.add_step(user_id, 4, 'intr')
+                    vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
+                                     message='Введи своё имя на CatWar',
+                                     keyboard=kb.kb_exit())
             else:
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                  message='Проверь правильность ввода',
