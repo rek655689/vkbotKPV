@@ -21,17 +21,20 @@ def editor_answer(vk, settings, config, object):
     user_token, group_id, editor = settings['access_token'], settings['group_id'], settings['editor']
     vk_token = (VkApi(token=user_token)).get_api()
     i = 1
-    id = '1'
-    while id[0] != '[':
+    id, member = '1', 1
+    while id[0] != '[' and member == 1:
         last_message = vk.messages.getHistory(**config, group_id=group_id,
                                               count=1, offset=i, user_id=editor)
         id = last_message['items'][0]['text']
         i += 1
-    id = id[1:(id.find("]"))]
+        if id[0] == '[':
+            id = id[1:(id.find("]"))]
+            member = isMember(vk, token=settings['token'], group_id=settings['group_id'], user_id=id)
+
     if object.message['text'].lower() == 'принять':
         vk_token.groups.approveRequest(group_id=group_id, user_id=id)
         vk.messages.send(**config, random_id=get_random_id(), user_id=editor,
-                         message='Принято',
+                         message='Принят ' + id,
                          )
         vk.messages.send(**config, random_id=get_random_id(), user_id=id,
                          message='Заявка успешно принята! Не забудь ознакомиться с правилами:\n'
