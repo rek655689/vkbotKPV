@@ -55,8 +55,6 @@ def kb_start(perm):
     if perm:
         keyboard.add_line()
         keyboard.add_button('Заявки', color=VkKeyboardColor.SECONDARY)
-        keyboard.add_line()
-        keyboard.add_button('Проверка страниц', color=VkKeyboardColor.SECONDARY)
     return keyboard.get_keyboard()
 
 

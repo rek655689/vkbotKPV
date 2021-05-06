@@ -1,4 +1,5 @@
 from vk_api import VkApi
+from vk_api import VkUpload
 from vk_api.utils import get_random_id
 
 import database
@@ -136,7 +137,7 @@ def intr(vk, settings, config, object):
                                  message='Отправь скриншот своего профиля со страницы Мой кот/Моя кошка',
                                  keyboard=kb.kb_exit())
             else:
-                url = (((((object.message['attachments'])[0])['photo'])['sizes'])[-1])['url']
+                message_id = object.message['id']
                 database.add_step(user_id, 6, 'intr')
                 vk_name = vk.users.get(user_ids=user_id, fields='first_name, last_name')[0]
                 vk_name = vk_name['first_name'] + ' ' + vk_name['last_name']
@@ -153,8 +154,10 @@ def intr(vk, settings, config, object):
                     last_name = ''
                 else:
                     last_name = '(ранее ' + str(last_name) + ')'
+
                 vk.messages.send(**config, random_id=get_random_id(), user_id=editor,
-                                 message=f"[{user_id}] \n {name} {last_name} \n {position} \n https://catwar.su/cat{id} \n {url}",
+                                 message=f"[{user_id}] \n {name} {last_name} \n {position} \n https://catwar.su/cat{id}",
+                                 forward_messages=message_id,
                                  keyboard=kb.kb_request()
                                  )
 
