@@ -22,5 +22,5 @@ while True:
                 continue
     except Exception as e:
         with open('errors.txt', 'a') as f:
-           f.write(str(e) + '\n')
+            f.write(str(e) + '\n')
         continue
