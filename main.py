@@ -15,12 +15,12 @@ while True:
     key, server, ts = LongPollServer['key'], LongPollServer['server'], LongPollServer['ts']
     config = {'key': key, 'server': server, 'ts': ts}
 
-    try:
-        for event in longpoll.listen():
+    #try:
+    for event in longpoll.listen():
             if event.type == VkBotEventType.MESSAGE_NEW and event.from_user:
                 handler.answer(vk, settings, config, event.object)
                 continue
-    except Exception as e:
-        with open('errors.txt', 'a') as f:
-            f.write(str(e) + '\n')
-        continue
+    #except Exception as e:
+     #   with open('errors.txt', 'a') as f:
+      #      f.write(str(e) + '\n')
+      #  continue
