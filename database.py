@@ -22,15 +22,19 @@ def add_member(user_id, vk_name, id, name, position):
     return
 
 
-def add_action(user_id, action, time):
+def add_action(user_id, action, time, section):
     connection = get_connection()
     cursor = connection.cursor()
     if action is not None:
         add = 'INSERT reminders (id, action) VALUES(%s, %s)'
         data = (user_id, action)
     else:
-        add = 'UPDATE reminders SET time=%s WHERE id = %s AND time="0"'
-        data = (time, user_id)
+        if time is not None:
+            add = 'UPDATE reminders SET time=%s WHERE id = %s AND time="0"'
+            data = (time, user_id)
+        else:
+            add = 'UPDATE reminders SET section=%s WHERE id = %s AND section="0"'
+            data = (section, user_id)
     cursor.execute(add, data)
     connection.commit()
     cursor.close()
@@ -41,7 +45,7 @@ def add_action(user_id, action, time):
 def show_reminders(user_id):
     connection = get_connection()
     cursor = connection.cursor()
-    add = "SELECT action, time FROM reminders WHERE id = %s ORDER BY time"
+    add = "SELECT action, time, section FROM reminders WHERE id = %s ORDER BY time"
     data = (user_id,)
     cursor.execute(add, data)
     result = cursor.fetchall()
@@ -104,11 +108,11 @@ def del_requests(user_id):
     return
 
 
-def check_ids(action, time):
+def check_ids(action, time, section):
     connection = get_connection()
     cursor = connection.cursor()
-    add = "SELECT id FROM reminders WHERE action = %s and time = %s"
-    data = (action, time)
+    add = "SELECT id FROM reminders WHERE action = %s and time = %s and section = %s"
+    data = (action, time, section)
     cursor.execute(add, data)
     result = cursor.fetchall()
     cursor.close()

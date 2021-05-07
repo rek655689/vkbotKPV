@@ -104,8 +104,8 @@ def create_reminder(vk, settings, config, object):
 
     if step == 0:  # нажал создать
         vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                         message='Ты можешь создать напоминание за 10 минут до какой-либо деятельности, для этого '
-                                 'тебе необходимо написать её название. Можно использовать разные варианты, '
+                         message='Ты можешь создать напоминание за 5 или 10 минут до какой-либо деятельности, '
+                                 'для этого тебе необходимо написать её название. Можно использовать разные варианты, '
                                  'например:\n— пограничный патруль\n— оп\n— мохосбор\nЕсли твоё сообщение не читается, '
                                  'попробуй другую формулировку',
                          keyboard=kb.kb_exit()
@@ -120,7 +120,7 @@ def create_reminder(vk, settings, config, object):
             if not re.search('[^Ёа-я ]', object.message['text'], flags=re.IGNORECASE):
                 for c in actions.action_list:
                     if (object.message['text']).lower() in c.vars:
-                        database.add_action(user_id, c.vars[0], None)
+                        database.add_action(user_id, c.vars[0], None, None)
                         vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                          message='Выбери время:',
                                          keyboard=kb.kb_action(c.times)
@@ -140,8 +140,27 @@ def create_reminder(vk, settings, config, object):
         else:
             if not re.search('[^:0-9]', object.message['text'], flags=re.IGNORECASE) and len(
                     object.message['text']) == 5 and (object.message['text'])[2] == ':':
+                database.add_action(user_id, None, object.message['text'], None)
+                vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
+                                 message='За сколько минут напоминать? (5 или 10)',
+                                 keyboard=kb.kb_section()
+                                 )
+                database.add_step(user_id, 3, 'create_reminder')
+
+            else:
+                vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
+                                 message='Проверь правильность ввода',
+                                 keyboard=kb.kb_exit())
+
+    if step == 3:  # ввел отрезок
+        if object.message['text'].lower() == 'выйти':
+            database.del_step(user_id, 'create_reminder')
+            database.del_all(user_id, False)
+            start(vk, settings, config, object)
+        else:
+            if not re.search('[^0-9]', object.message['text'], flags=re.IGNORECASE) and len(object.message['text']) <= 2:
                 try:
-                    database.add_action(user_id, None, object.message['text'])
+                    database.add_action(user_id, None, None, object.message['text'])
                 except mysql.IntegrityError:
                     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                      message='У тебя уже есть такое напоминание')
@@ -164,7 +183,7 @@ def show_reminders(vk, settings, config, object):
     result = database.show_reminders(user_id)
     message = ''
     for x in result:
-        message = message + x[1] + ' — ' + x[0] + '\n'
+        message = f'{message}{x[1]} — {x[0]} (за {x[2]} минут)\n'
     if message == '':
         message = 'Напоминаний нет'
     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
