@@ -93,17 +93,16 @@ for action in actions.other_actions:
 schedule.every().day.at('00:00').do(l_s)
 
 while True:
-    #try:
+    try:
         schedule.run_pending()
         time.sleep(1)
-#except Exception as e:
-    #    with open('errors.txt', 'a') as f:
-    #        f.write(str(e) + '\n')
-     #   vk_session = vk_api.VkApi(token=token)
-      #  longpoll = VkBotLongPoll(vk_session, group_id, wait=25)
-       # vk = vk_session.get_api()
-        #LongPollServer = vk.groups.getLongPollServer(group_id=group_id)
-        #key, server, ts = LongPollServer['key'], LongPollServer['server'], LongPollServer['ts']
-        #config = {'key': key, 'server': server, 'ts': ts}
-        #continue
-        #
+    except Exception as e:
+            with open('errors.txt', 'a') as f:
+                f.write(str(e) + '\n')
+            vk_session = vk_api.VkApi(token=token)
+            longpoll = VkBotLongPoll(vk_session, group_id, wait=25)
+            vk = vk_session.get_api()
+            LongPollServer = vk.groups.getLongPollServer(group_id=group_id)
+            key, server, ts = LongPollServer['key'], LongPollServer['server'], LongPollServer['ts']
+            config = {'key': key, 'server': server, 'ts': ts}
+            continue
