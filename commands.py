@@ -71,7 +71,7 @@ def table(vk, settings, config, object):
     user_id = object.message['from_id']
     attachment = 'photo-165101106_457239755'
     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                     message='Собрания - 18:00 (среда - 19:00Б воскресенье - 16:00)\n'
+                     message='Собрания - 18:00 (среда - 19:00, воскресенье - 16:00)\n'
                              'Ветки - 12:00, 16:00\n'
                              'Самая Яркая Ночь - 18:00 в последнее воскресенье месяца',
                      attachment=attachment
