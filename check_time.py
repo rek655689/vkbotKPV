@@ -16,7 +16,7 @@ def l_s():
     f_d_month, q_d_month = calendar.monthrange(year, month)[0], calendar.monthrange(year, month)[1]
     ost = 6 - f_d_month
     weeks = (q_d_month // 7)
-    f_d_month = weeks*7+1
+    f_d_month = weeks * 7 + 1
     last_sunday = f_d_month + ost
     if last_sunday > q_d_month:
         last_sunday -= 7
@@ -80,15 +80,16 @@ for action in actions.action_list:
             schedule.every().day.at(minutes5(times)).do(eval('actions.' + name + '.send5'), vk, config, times, action)
             schedule.every().day.at(minutes10(times)).do(eval('actions.' + name + '.send10'), vk, config, times, action)
 
-
 for action in actions.other_actions:
     name = action.get_var_name()
     if name == 'meeting':
         times = ['18:00', '18:00', '19:00', '18:00', '18:00', '18:00', '16:00']
         days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
         for d, t in zip(days, times):
-            eval(f"schedule.every().{d}.at('{minutes5(t)}').do(actions.meeting.send5, vk, config, '{t}', actions.meeting)")
-            eval(f"schedule.every().{d}.at('{minutes10(t)}').do(actions.meeting.send10, vk, config, '{t}', actions.meeting)")
+            eval(
+                f"schedule.every().{d}.at('{minutes5(t)}').do(actions.meeting.send5, vk, config, '{t}', actions.meeting)")
+            eval(
+                f"schedule.every().{d}.at('{minutes10(t)}').do(actions.meeting.send10, vk, config, '{t}', actions.meeting)")
 
 schedule.every().day.at('00:00').do(l_s)
 
@@ -97,12 +98,12 @@ while True:
         schedule.run_pending()
         time.sleep(1)
     except Exception as e:
-            with open('errors.txt', 'a') as f:
-                f.write(str(e) + '\n')
-            vk_session = vk_api.VkApi(token=token)
-            longpoll = VkBotLongPoll(vk_session, group_id, wait=25)
-            vk = vk_session.get_api()
-            LongPollServer = vk.groups.getLongPollServer(group_id=group_id)
-            key, server, ts = LongPollServer['key'], LongPollServer['server'], LongPollServer['ts']
-            config = {'key': key, 'server': server, 'ts': ts}
-            continue
+        with open('errors.txt', 'a') as f:
+            f.write(str(e) + '\n')
+        vk_session = vk_api.VkApi(token=token)
+        longpoll = VkBotLongPoll(vk_session, group_id, wait=25)
+        vk = vk_session.get_api()
+        LongPollServer = vk.groups.getLongPollServer(group_id=group_id)
+        key, server, ts = LongPollServer['key'], LongPollServer['server'], LongPollServer['ts']
+        config = {'key': key, 'server': server, 'ts': ts}
+        continue
