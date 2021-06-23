@@ -119,7 +119,7 @@ def create_reminder(vk, settings, config, object):
                          message='Ты можешь создать напоминание за 5 или 10 минут до какой-либо деятельности, '
                                  'для этого тебе необходимо написать её название. Можно использовать разные варианты, '
                                  'например:\n— пограничный патруль\n— оп\n— мохосбор\nЕсли твоё сообщение не читается, '
-                                 'попробуй другую формулировку',
+                                 'попробуй другую формулировку, например, указанную в таблице занятости',
                          keyboard=kb.kb_exit()
                          )
         database.add_step(user_id, 1, 'create_reminder')
@@ -134,7 +134,7 @@ def create_reminder(vk, settings, config, object):
                     if (object.message['text']).lower() in c.vars:
                         database.add_action(user_id, c.vars[0], None, None)
                         vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                                         message='Выбери время:',
+                                         message='Введи время:',
                                          keyboard=kb.kb_action(c.times)
                                          )
                         database.add_step(user_id, 2, 'create_reminder')
@@ -244,7 +244,7 @@ def del_reminder(vk, settings, config, object):
                         name = c.get_var_name()
                         database.del_add_action(user_id, name)
                         vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                                         message='Выбери время:',
+                                         message='Введи время:',
                                          keyboard=kb.kb_action(c.times),
                                          )
                         database.add_step(user_id, 3, 'del_reminders')

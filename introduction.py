@@ -17,8 +17,8 @@ def intr(vk, settings, config, object):
         vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                          message='Если ты состоишь в клане, занимаешь должность не ниже будущего (или был(а) '
                                  'стражем/охотником в прошлой жизни) и хочешь вступить в группу, то нажми '
-                                 'соответствующую '
-                                 'кнопку',
+                                 'соответствующую кнопку (или напиши "вступить").\nНа любом этапе ты можешь выйти из '
+                                 'диалога с помощью кнопки или слова "выйти".',
                          keyboard=kb.kb_introduction()
                          )
         database.add_step(user_id, 1, 'intr')
@@ -36,7 +36,7 @@ def intr(vk, settings, config, object):
                                  )
             else:
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                                 message='Если твоей должности нет в списке, то просто напиши её',
+                                 message='Если твоей должности нет в списке ниже, то просто напиши её',
                                  keyboard=kb.kb_position()
                                  )
                 database.add_step(user_id, 2, 'intr')
