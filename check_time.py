@@ -10,24 +10,6 @@ with open('settings.yaml', encoding='utf8') as f:
 token, confirmation_token, group_id = settings['token'], settings['confirmation_token'], settings['group_id']
 
 
-def l_s():
-    now = datetime.datetime.now()
-    year = now.year
-    month = now.month
-    f_d_month, q_d_month = calendar.monthrange(year, month)[0], calendar.monthrange(year, month)[1]
-    ost = 6 - f_d_month
-    weeks = (q_d_month // 7)
-    f_d_month = weeks * 7 + 1
-    last_sunday = f_d_month + ost
-    if last_sunday > q_d_month:
-        last_sunday -= 7
-
-    if now.day == last_sunday:
-        schedule.every().day.at('17:55').do(actions.brightest_night.send5, vk, config, times, actions.brightest_night)
-        schedule.every().day.at('17:50').do(actions.brightest_night.send10, vk, config, times, actions.brightest_night)
-        return schedule.CancelJob
-
-
 def minutes10(t):
     t = t.split(":")
     h1 = int((t[0])[0])
@@ -69,6 +51,7 @@ def minutes5(t):
 
 class SecureVkLongPoll(VkBotLongPoll):
     """Обработка разрыва соединения от лонгпула"""
+
     def listen(self):
         while True:
             try:
@@ -77,8 +60,16 @@ class SecureVkLongPoll(VkBotLongPoll):
             except requests.exceptions.ReadTimeout as e:
                 time.sleep(5)
                 with open('errors.txt', 'a') as f:
-                    f.write("Лонгпул сбросил соединение:"+str(e)+'\n')
+                    f.write("Лонгпул сбросил соединение:" + str(e) + '\n')
                 continue
+
+def action5():
+    actions.brightest_night.send5(vk, config, times, actions.brightest_night)
+    return schedule.CancelJob
+
+def action10():
+    actions.brightest_night.send10(vk, config, times, actions.brightest_night)
+    return schedule.CancelJob
 
 
 vk_session = vk_api.VkApi(token=token)
@@ -89,6 +80,22 @@ vk = vk_session.get_api()
 LongPollServer = vk.groups.getLongPollServer(group_id=group_id)
 key, server, ts = LongPollServer['key'], LongPollServer['server'], LongPollServer['ts']
 config = {'key': key, 'server': server, 'ts': ts}
+
+now = datetime.datetime.now()
+year = now.year
+month = now.month
+f_d_month, q_d_month = calendar.monthrange(year, month)[0], calendar.monthrange(year, month)[1]
+ost = 6 - f_d_month
+weeks = (q_d_month // 7)
+f_d_month = weeks * 7 + 1
+last_sunday = f_d_month + ost
+if last_sunday > q_d_month:
+    last_sunday -= 7
+
+if now.day == last_sunday:
+    print(str(now.day) + ' true')
+    schedule.every().day.at('17:55').do(action5)
+    schedule.every().day.at('17:50').do(action10)
 
 for action in actions.action_list:
     name = action.get_var_name()
@@ -108,7 +115,6 @@ for action in actions.other_actions:
             eval(
                 f"schedule.every().{d}.at('{minutes10(t)}').do(actions.meeting.send10, vk, config, '{t}', actions.meeting)")
 
-schedule.every().day.at('00:00').do(l_s)
 
 while True:
     try:
