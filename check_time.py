@@ -63,14 +63,6 @@ class SecureVkLongPoll(VkBotLongPoll):
                     f.write("Лонгпул сбросил соединение:" + str(e) + '\n')
                 continue
 
-def action5():
-    actions.brightest_night.send5(vk, config, times, actions.brightest_night)
-    return schedule.CancelJob
-
-def action10():
-    actions.brightest_night.send10(vk, config, times, actions.brightest_night)
-    return schedule.CancelJob
-
 
 vk_session = vk_api.VkApi(token=token)
 longpoll = SecureVkLongPoll(vk_session, group_id, wait=25)
@@ -94,8 +86,8 @@ if last_sunday > q_d_month:
 
 if now.day == last_sunday:
     print(str(now.day) + ' true')
-    schedule.every().day.at('17:55').do(action5)
-    schedule.every().day.at('17:50').do(action10)
+    schedule.every().day.at('17:55').do(actions.brightest_night.send5, vk, config, actions.brightest_night.times[0], actions.brightest_night)
+    schedule.every().day.at('17:50').do(actions.brightest_night.send10, vk, config, actions.brightest_night.times[0], actions.brightest_night)
 
 for action in actions.action_list:
     name = action.get_var_name()
