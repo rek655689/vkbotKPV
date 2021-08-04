@@ -18,8 +18,10 @@ class SecureVkLongPoll(VkBotLongPoll):
                     yield event
             except requests.exceptions.ReadTimeout as e:
                 time.sleep(5)
+                seconds = time.time()
+                local_time = time.ctime(seconds)
                 with open('errors.txt', 'a') as f:
-                    f.write("Лонгпул сбросил соединение:"+str(e)+'\n')
+                    f.write('\n'+local_time+" Лонгпул сбросил соединение: "+str(e)+'\n')
 
 
 vk_session = vk_api.VkApi(token=token)

@@ -121,7 +121,9 @@ while True:
         time.sleep(1)
     except Exception as e:
         with open('errors.txt', 'a') as f:
-            f.write(str(e) + '\n')
+            seconds = time.time()
+            local_time = time.ctime(seconds)
+            f.write('\nPages: '+local_time+' '+str(e) + '\n')
         vk_session = vk_api.VkApi(token=token)
         longpoll = VkBotLongPoll(vk_session, group_id, wait=25)
         vk = vk_session.get_api()

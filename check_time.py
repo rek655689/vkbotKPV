@@ -60,7 +60,10 @@ class SecureVkLongPoll(VkBotLongPoll):
             except requests.exceptions.ReadTimeout as e:
                 time.sleep(5)
                 with open('errors.txt', 'a') as f:
-                    f.write("Лонгпул сбросил соединение:" + str(e) + '\n')
+                    seconds = time.time()
+                    local_time = time.ctime(seconds)
+                    with open('errors.txt', 'a') as f:
+                        f.write('\nTime: ' + local_time + " Лонгпул сбросил соединение:" + str(e) + '\n')
                 continue
 
 
