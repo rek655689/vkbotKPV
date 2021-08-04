@@ -145,7 +145,7 @@ def intr(vk, settings, config, object):
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                  message=f'Твоя заявка была отправлена редактору группы, осталось дождаться её '
                                          f'одобрения. Если прошло больше 2-3 суток, а решение не было вынесено, '
-                                         f'обратись к [id{editor}|редактору] группы.',
+                                         f'обратись к [id{editor}|редактору].',
                                  )
 
                 # ОТПРАВКА РЕДАКТОРУ
