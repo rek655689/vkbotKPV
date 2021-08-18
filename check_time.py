@@ -82,6 +82,7 @@ config = {'key': key, 'server': server, 'ts': ts}
 now = datetime.datetime.now()
 year = now.year
 month = now.month
+day = now.day
 f_d_month, q_d_month = calendar.monthrange(year, month)[0], calendar.monthrange(year, month)[1]
 ost = 6 - f_d_month
 weeks = (q_d_month // 7)
@@ -90,10 +91,12 @@ last_sunday = f_d_month + ost
 if last_sunday > q_d_month:
     last_sunday -= 7
 
-if now.day == last_sunday:
+if day == last_sunday:
     print(str(now.day) + ' true')
     schedule.every().day.at('17:55').do(actions.brightest_night.send5, vk, config, actions.brightest_night.times[0], actions.brightest_night)
     schedule.every().day.at('17:50').do(actions.brightest_night.send10, vk, config, actions.brightest_night.times[0], actions.brightest_night)
+else:
+    print(str(now.day) + ' no')
 
 for action in actions.action_list:
     name = action.get_var_name()
@@ -112,7 +115,6 @@ for action in actions.other_actions:
                 f"schedule.every().{d}.at('{minutes5(t)}').do(actions.meeting.send5, vk, config, '{t}', actions.meeting)")
             eval(
                 f"schedule.every().{d}.at('{minutes10(t)}').do(actions.meeting.send10, vk, config, '{t}', actions.meeting)")
-
 
 while True:
     try:
