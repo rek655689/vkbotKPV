@@ -4,6 +4,9 @@ import calendar
 import datetime
 import requests
 
+seconds = time.time()
+local_time = time.ctime(seconds)
+
 with open('settings.yaml', encoding='utf8') as f:
     settings = yaml.safe_load(f)
 
@@ -63,7 +66,7 @@ class SecureVkLongPoll(VkBotLongPoll):
                     seconds = time.time()
                     local_time = time.ctime(seconds)
                     with open('errors.txt', 'a') as f:
-                        f.write('\nTime: ' + local_time + " Лонгпул сбросил соединение:" + str(e) + '\n')
+                        f.write('\nTime: '+local_time+" лонгпул сбросил соединение: "+str(e)+'\n')
                 continue
 
 
@@ -117,5 +120,5 @@ while True:
         time.sleep(1)
     except Exception as e:
         with open('errors.txt', 'a') as f:
-            f.write(str(e) + '\n')
+            f.write('\nTime: '+local_time+' '+str(e))
         continue

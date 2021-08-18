@@ -3,6 +3,8 @@ import yaml, time, requests
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 import handler
 
+seconds = time.time()
+local_time = time.ctime(seconds)
 
 with open('settings.yaml', encoding='utf8') as f:
     settings = yaml.safe_load(f)
@@ -18,10 +20,8 @@ class SecureVkLongPoll(VkBotLongPoll):
                     yield event
             except requests.exceptions.ReadTimeout as e:
                 time.sleep(5)
-                seconds = time.time()
-                local_time = time.ctime(seconds)
                 with open('errors.txt', 'a') as f:
-                    f.write('\n'+local_time+" Лонгпул сбросил соединение: "+str(e)+'\n')
+                    f.write('\nMain: '+local_time+" лонгпул сбросил соединение: "+str(e)+'\n')
 
 
 vk_session = vk_api.VkApi(token=token)
@@ -40,5 +40,5 @@ while True:
     except Exception as e:
         time.sleep(5)
         with open('errors.txt', 'a') as f:
-            f.write(str(e) + '\n')
+            f.write('\nMain: '+local_time+' '+str(e))
         continue
