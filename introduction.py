@@ -1,15 +1,15 @@
 from vk_api import VkApi
 from vk_api import VkUpload
 from vk_api.utils import get_random_id
+from settings import *
 
 import database
 import kb
 import re
 
 
-def intr(vk, settings, config, object):
-    user_token, group_id, editor = settings['access_token'], settings['group_id'], settings['editor']
-    vk_token = (VkApi(token=user_token)).get_api()
+def intr(vk, config, object):
+    vk_token = (VkApi(token=access_token)).get_api()
     user_id = object.message['from_id']
     step = int(database.check_step(user_id, 'intr'))
 
@@ -26,7 +26,7 @@ def intr(vk, settings, config, object):
     if step == 1:  # нажал вступить, проверка заявки
         if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'intr')
-            intr(vk, settings, config, object)
+            intr(vk, config, object)
         elif object.message['text'].lower() == 'вступить' or object.message['text'].lower() == 'готово':
             requests = vk_token.groups.getRequests(group_id=group_id)
             if user_id not in requests['items']:
@@ -44,7 +44,7 @@ def intr(vk, settings, config, object):
     if step == 2:  # получение должности
         if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'intr')
-            intr(vk, settings, config, object)
+            intr(vk, config, object)
         else:
             position = object.message['text'].lower()
 
@@ -69,7 +69,7 @@ def intr(vk, settings, config, object):
     if step == 22:  # получение предыдущего имени котёнка
         if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'intr')
-            intr(vk, settings, config, object)
+            intr(vk, config, object)
         else:
             last_name = object.message['text'].lower().title()
             if not re.search('[^Ёа-я ]', last_name, flags=re.IGNORECASE):
@@ -87,7 +87,7 @@ def intr(vk, settings, config, object):
     if step == 3:  # получение айди
         if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'intr')
-            intr(vk, settings, config, object)
+            intr(vk, config, object)
         else:
             id = object.message['text']
             if not re.search('[^0-9]', id, flags=re.IGNORECASE):
@@ -113,7 +113,7 @@ def intr(vk, settings, config, object):
     if step == 4:  # получение имени
         if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'intr')
-            intr(vk, settings, config, object)
+            intr(vk, config, object)
         else:
             name = object.message['text'].lower().title()
             if not re.search('[^Ёа-я ]', name, flags=re.IGNORECASE):
@@ -130,7 +130,7 @@ def intr(vk, settings, config, object):
     if step == 5:  # получение скрина
         if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'intr')
-            intr(vk, settings, config, object)
+            intr(vk, config, object)
         else:
             if not object.message['attachments']:
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,

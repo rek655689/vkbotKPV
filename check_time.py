@@ -1,16 +1,14 @@
-import time, schedule, vk_api, yaml, actions
-from vk_api.bot_longpoll import VkBotLongPoll
+import actions
 import calendar
 import datetime
+import schedule
+import time
+import vk_api
 import requests
+import connection
 
 seconds = time.time()
 local_time = time.ctime(seconds)
-
-with open('settings.yaml', encoding='utf8') as f:
-    settings = yaml.safe_load(f)
-
-token, confirmation_token, group_id = settings['token'], settings['confirmation_token'], settings['group_id']
 
 
 def minutes10(t):
@@ -52,32 +50,7 @@ def minutes5(t):
     return t
 
 
-class SecureVkLongPoll(VkBotLongPoll):
-    """Обработка разрыва соединения от лонгпула"""
-
-    def listen(self):
-        while True:
-            try:
-                for event in self.check():
-                    yield event
-            except requests.exceptions.ReadTimeout as e:
-                time.sleep(5)
-                with open('errors.txt', 'a') as f:
-                    seconds = time.time()
-                    local_time = time.ctime(seconds)
-                    with open('errors.txt', 'a') as f:
-                        f.write('\nTime: '+local_time+" лонгпул сбросил соединение: "+str(e)+'\n')
-                continue
-
-
-vk_session = vk_api.VkApi(token=token)
-longpoll = SecureVkLongPoll(vk_session, group_id, wait=25)
-vk_session = vk_api.VkApi(token=token)
-longpoll = SecureVkLongPoll(vk_session, group_id, wait=25)
-vk = vk_session.get_api()
-LongPollServer = vk.groups.getLongPollServer(group_id=group_id)
-key, server, ts = LongPollServer['key'], LongPollServer['server'], LongPollServer['ts']
-config = {'key': key, 'server': server, 'ts': ts}
+vk, longpoll, config = connection.connect(vk_api, requests, time, local_time)
 
 now = datetime.datetime.now()
 year = now.year

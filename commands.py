@@ -1,6 +1,7 @@
 from vk_api import VkApi
 from vk_api.utils import get_random_id
 from mysql.connector import errors as mysql
+from settings import *
 
 import database
 import kb
@@ -17,9 +18,8 @@ def isMember(vk, token, user_id, group_id):
 ###################### BASE #############################
 
 
-def editor_answer(vk, settings, config, object):
-    user_token, group_id, editor = settings['access_token'], settings['group_id'], settings['editor']
-    vk_token = (VkApi(token=user_token)).get_api()
+def editor_answer(vk, config, object):
+    vk_token = (VkApi(token=access_token)).get_api()
     i = 1
     id, member = '1', 1
     while id[0] != '[' and member == 1:
@@ -29,7 +29,7 @@ def editor_answer(vk, settings, config, object):
         i += 1
         if id[0] == '[':
             id = id[1:(id.find("]"))]
-            member = isMember(vk, token=settings['token'], group_id=settings['group_id'], user_id=id)
+            member = isMember(vk, token=token, group_id=group_id, user_id=id)
 
     if object.message['text'].lower() == 'принять':
         vk_token.groups.approveRequest(group_id=group_id, user_id=id)
@@ -67,7 +67,7 @@ def check_in_table(user_id):
             return tables[1]
 
 
-def table(vk, settings, config, object):
+def table(vk, config, object):
     user_id = object.message['from_id']
     attachment = 'photo-165101106_457239755'
     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
@@ -76,22 +76,22 @@ def table(vk, settings, config, object):
                              'Самая Яркая Ночь - 18:00 в последнее воскресенье месяца',
                      attachment=attachment
                      )
-    start(vk, settings, config, object)
+    start(vk, config, object)
 
 
-def idea(vk, settings, config, object):
+def idea(vk, config, object):
     user_id = object.message['from_id']
     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                      message='Если у тебя есть какие-либо замечания, предложения, идеи и пр., то ты можешь абсолютно '
                              'анонимно выразить их здесь:\n>>https://docs.google.com/forms/d/13j-jeLwJngqZUReIn7RscG4GC'
                              '9g4CqSQ42hNWnkzrXg/edit?usp=sharing << '
                      )
-    start(vk, settings, config, object)
+    start(vk, config, object)
 
 ###################### РЕДАКТОР #######################
 
 
-def req(vk, settings, config, object):
+def req(vk, config, object):
     user_id = object.message['from_id']
     result = database.show_requests()
     message = ''
@@ -110,7 +110,7 @@ def req(vk, settings, config, object):
 ###################### START ##########################
 
 
-def create_reminder(vk, settings, config, object):
+def create_reminder(vk, config, object):
     user_id = object.message['from_id']
     step = int(database.check_step(user_id, 'create_reminder'))
 
@@ -127,7 +127,7 @@ def create_reminder(vk, settings, config, object):
     if step == 1:  # ввел название
         if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'create_reminder')
-            start(vk, settings, config, object)
+            start(vk, config, object)
         else:
             if not re.search('[^Ёа-я ]', object.message['text'], flags=re.IGNORECASE):
                 for c in actions.action_list:
@@ -148,7 +148,7 @@ def create_reminder(vk, settings, config, object):
         if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'create_reminder')
             database.del_all(user_id, False)
-            start(vk, settings, config, object)
+            start(vk, config, object)
         else:
             if not re.search('[^:0-9]', object.message['text'], flags=re.IGNORECASE) and len(
                     object.message['text']) == 5 and (object.message['text'])[2] == ':':
@@ -168,7 +168,7 @@ def create_reminder(vk, settings, config, object):
         if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'create_reminder')
             database.del_all(user_id, False)
-            start(vk, settings, config, object)
+            start(vk, config, object)
         else:
             if not re.search('[^0-9]', object.message['text'], flags=re.IGNORECASE) and len(object.message['text']) <= 2:
                 try:
@@ -177,20 +177,20 @@ def create_reminder(vk, settings, config, object):
                     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                      message='У тебя уже есть такое напоминание')
                     database.del_step(user_id, 'create_reminder')
-                    start(vk, settings, config, object)
+                    start(vk, config, object)
                 else:
                     database.del_step(user_id, 'create_reminder')
                     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                      message='Успешно!',
                                      )
-                    start(vk, settings, config, object)
+                    start(vk, config, object)
             else:
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                  message='Проверь правильность ввода',
                                  keyboard=kb.kb_exit())
 
 
-def show_reminders(vk, settings, config, object):
+def show_reminders(vk, config, object):
     user_id = object.message['from_id']
     result = database.show_reminders(user_id)
     message = ''
@@ -201,10 +201,10 @@ def show_reminders(vk, settings, config, object):
     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                      message=message,
                      )
-    start(vk, settings, config, object)
+    start(vk, config, object)
 
 
-def del_reminder(vk, settings, config, object):
+def del_reminder(vk, config, object):
     user_id = object.message['from_id']
     step = int(database.check_step(user_id, 'del_reminders'))
 
@@ -218,7 +218,7 @@ def del_reminder(vk, settings, config, object):
     if step == 1:  # ввел
         if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'del_reminders')
-            start(vk, settings, config, object)
+            start(vk, config, object)
         else:
             if object.message['text'].lower() == 'одно' or object.message['text'] == '1':
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
@@ -231,12 +231,12 @@ def del_reminder(vk, settings, config, object):
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                  message='Все напоминания успешно удалены',
                                  )
-                start(vk, settings, config, object)
+                start(vk, config, object)
 
     if step == 2:
         if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'del_reminders')
-            start(vk, settings, config, object)
+            start(vk, config, object)
         else:
             if not re.search('[^Ёа-я ]', object.message['text'].lower(), flags=re.IGNORECASE):
                 for c in actions.action_list:
@@ -256,7 +256,7 @@ def del_reminder(vk, settings, config, object):
     if step == 3:
         if object.message['text'].lower() == 'выйти':
             database.del_step(user_id, 'del_reminders')
-            start(vk, settings, config, object)
+            start(vk, config, object)
         else:
             time = object.message['text']
             if not re.search('[^:0-9]', time, flags=re.IGNORECASE) and len(object.message['text']) == 5 and \
@@ -271,7 +271,7 @@ def del_reminder(vk, settings, config, object):
                                          + ' в ' + time + ' удален(а) или у тебя не было такого напоминания'
                                  )
                                  )
-                start(vk, settings, config, object)
+                start(vk, config, object)
 
             else:
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
@@ -279,8 +279,7 @@ def del_reminder(vk, settings, config, object):
                                  keyboard=kb.kb_exit())
 
 
-def start(vk, settings, config, object):
-    editor = settings['editor']
+def start(vk, config, object):
     user_id = object.message['from_id']
     if user_id == editor:
         perm = 1

@@ -22,7 +22,7 @@ def kb_intr_req():
 
 
 def kb_position():
-    keyboard = VkKeyboard(one_time=True)
+    keyboard = VkKeyboard(inline=True)
     keyboard.add_button('Будущий Страж', color=VkKeyboardColor.SECONDARY)
     keyboard.add_button('Будущий Охотник', color=VkKeyboardColor.SECONDARY)
     keyboard.add_line()
@@ -61,7 +61,7 @@ def kb_start(perm):
 
 
 def kb_action(times):
-    keyboard = VkKeyboard(one_time=True)
+    keyboard = VkKeyboard(inline=True)
     for i in times:
         keyboard.add_button(i, color=VkKeyboardColor.SECONDARY)
         keyboard.add_line()
@@ -70,7 +70,7 @@ def kb_action(times):
 
 
 def kb_section():
-    keyboard = VkKeyboard(one_time=True)
+    keyboard = VkKeyboard(inline=True)
     keyboard.add_button('5', color=VkKeyboardColor.SECONDARY)
     keyboard.add_button('10', color=VkKeyboardColor.SECONDARY)
     return keyboard.get_keyboard()

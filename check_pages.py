@@ -1,22 +1,19 @@
-from requests_html import HTMLSession
+import re
+import schedule
+import time
+import vk_api
+import requests
 from bs4 import BeautifulSoup
-import time, schedule, vk_api, yaml, re
-from vk_api.bot_longpoll import VkBotLongPoll
+from requests_html import HTMLSession
 from vk_api.utils import get_random_id
+import connection
+from settings import *
 
-with open('settings.yaml', encoding='utf8') as f:
-    settings = yaml.safe_load(f)
+seconds = time.time()
+local_time = time.ctime(seconds)
 
-token, confirmation_token, group_id = settings['token'], settings['confirmation_token'], settings['group_id']
-user_token, catwar, editor = settings['access_token'], settings['catwar'], settings['editor']
-
-vk_session = vk_api.VkApi(token=token)
-longpoll = VkBotLongPoll(vk_session, group_id, wait=25)
-vk = vk_session.get_api()
-LongPollServer = vk.groups.getLongPollServer(group_id=group_id)
-key, server, ts = LongPollServer['key'], LongPollServer['server'], LongPollServer['ts']
-config = {'key': key, 'server': server, 'ts': ts}
-vk_token = (vk_api.VkApi(token=user_token)).get_api()
+vk, longpoll, config = connection.connect(vk_api, requests, time, local_time)
+vk_token = (vk_api.VkApi(token=access_token)).get_api()
 
 
 def check_pages(vk, config):
@@ -121,14 +118,5 @@ while True:
         time.sleep(1)
     except Exception as e:
         with open('errors.txt', 'a') as f:
-            seconds = time.time()
-            local_time = time.ctime(seconds)
             f.write('\nPages: '+local_time+' '+str(e) + '\n')
-        vk_session = vk_api.VkApi(token=token)
-        longpoll = VkBotLongPoll(vk_session, group_id, wait=25)
-        vk = vk_session.get_api()
-        LongPollServer = vk.groups.getLongPollServer(group_id=group_id)
-        key, server, ts = LongPollServer['key'], LongPollServer['server'], LongPollServer['ts']
-        config = {'key': key, 'server': server, 'ts': ts}
-        vk_token = (vk_api.VkApi(token=user_token)).get_api()
         continue

@@ -1,12 +1,9 @@
-import mysql.connector, yaml
-
-with open('settings.yaml', encoding='utf8') as f:
-    settings = yaml.safe_load(f)
-    settings = settings['database']
+import mysql.connector
+from settings import *
 
 
 def get_connection():
-    connection = mysql.connector.connect(**settings, database='default', auth_plugin='mysql_native_password')
+    connection = mysql.connector.connect(**database, database='default', auth_plugin='mysql_native_password')
     return connection
 
 
