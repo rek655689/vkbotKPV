@@ -1,8 +1,8 @@
 from settings import *
 
 
-def connect (vk_api, requests, time, local_time):
-    VkBotLongPoll = vk_api.bot_longpoll.VkBotLongPoll
+def connect(vk_api, requests, time, local_time):
+    from vk_api.bot_longpoll import VkBotLongPoll
 
     class SecureVkLongPoll(VkBotLongPoll):
         """Обработка разрыва соединения от лонгпула"""
