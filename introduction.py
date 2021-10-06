@@ -1,5 +1,4 @@
 from vk_api import VkApi
-from vk_api import VkUpload
 from vk_api.utils import get_random_id
 from settings import *
 
@@ -31,7 +30,7 @@ def intr(vk, config, object):
             requests = vk_token.groups.getRequests(group_id=group_id)
             if user_id not in requests['items']:
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                                 message='Подай, пожалуйста, заявку в группу',
+                                 message='Подай, пожалуйста, заявку в группу. После этого нажми или напиши "готово"',
                                  keyboard=kb.kb_intr_req()
                                  )
             else:
@@ -97,7 +96,7 @@ def intr(vk, config, object):
                     database.del_step(id, 'intr')
                     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                      message='К сожалению, по некоторым причинам заявка была отклонена. По всем '
-                                             'вопросам обращайся к [id478936081|редактору] группы '
+                                             f'вопросам обращайся к [id{editor}]|редактору] группы '
                                      )
                 else:
                     database.add_inf(user_id, 'id', id)
@@ -143,9 +142,8 @@ def intr(vk, config, object):
                 vk_name = vk_name['first_name'] + ' ' + vk_name['last_name']
                 database.add_inf(user_id, 'vk_name', vk_name)
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                                 message=f'Твоя заявка была отправлена редактору группы, осталось дождаться её '
-                                         f'одобрения. Если прошло больше 2-3 суток, а решение не было вынесено, '
-                                         f'обратись к [id{editor}|редактору].',
+                                 message='Твоя заявка была отправлена редактору группы, осталось дождаться её '
+                                         'одобрения.',
                                  )
 
                 # ОТПРАВКА РЕДАКТОРУ

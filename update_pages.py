@@ -2,12 +2,12 @@ from settings import *
 import vk_api
 import connection
 import requests
-import time
 import re
 import pandas as pd
 from openpyxl import load_workbook
 from requests_html import HTMLSession
 from bs4 import BeautifulSoup
+import time
 
 seconds = time.time()
 local_time = time.ctime(seconds)

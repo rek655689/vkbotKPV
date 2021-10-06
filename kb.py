@@ -2,7 +2,7 @@ from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 
 
 def kb_exit():
-    keyboard = VkKeyboard(one_time=True)
+    keyboard = VkKeyboard(inline=True)
     keyboard.add_button('Выйти', color=VkKeyboardColor.NEGATIVE)
     return keyboard.get_keyboard()
 
@@ -43,8 +43,8 @@ def kb_request():
     return keyboard.get_keyboard()
 
 
-def kb_start(perm):
-    keyboard = VkKeyboard(one_time=True)
+def kb_start():
+    keyboard = VkKeyboard(one_time=False)
     keyboard.add_button('Создать напоминание', color=VkKeyboardColor.POSITIVE)
     keyboard.add_line()
     keyboard.add_button('Мои напоминания', color=VkKeyboardColor.PRIMARY)
@@ -52,11 +52,7 @@ def kb_start(perm):
     keyboard.add_button('Удалить напоминания', color=VkKeyboardColor.NEGATIVE)
     keyboard.add_line()
     keyboard.add_button('Таблица занятости', color=VkKeyboardColor.SECONDARY)
-    keyboard.add_line()
     keyboard.add_button('Предложить идею', color=VkKeyboardColor.SECONDARY)
-    if perm:
-        keyboard.add_line()
-        keyboard.add_button('Заявки', color=VkKeyboardColor.SECONDARY)
     return keyboard.get_keyboard()
 
 
@@ -77,7 +73,7 @@ def kb_section():
 
 
 def kb_del():
-    keyboard = VkKeyboard(one_time=True)
+    keyboard = VkKeyboard(inline=True)
     keyboard.add_button('Одно', color=VkKeyboardColor.SECONDARY)
     keyboard.add_button('Все', color=VkKeyboardColor.SECONDARY)
     keyboard.add_button('Выйти', color=VkKeyboardColor.NEGATIVE)

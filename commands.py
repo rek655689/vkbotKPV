@@ -7,6 +7,7 @@ import database
 import kb
 import re
 import actions
+import update_pages
 
 
 def isMember(vk, token, user_id, group_id):
@@ -17,45 +18,30 @@ def isMember(vk, token, user_id, group_id):
 
 ###################### BASE #############################
 
-
-def editor_answer(vk, config, object):
-    vk_token = (VkApi(token=access_token)).get_api()
-    i = 1
-    id, member = '1', 1
-    while id[0] != '[' and member == 1:
-        last_message = vk.messages.getHistory(**config, group_id=group_id,
-                                              count=1, offset=i, user_id=editor)
-        id = last_message['items'][0]['text']
-        i += 1
-        if id[0] == '[':
-            id = id[1:(id.find("]"))]
-            member = isMember(vk, token=token, group_id=group_id, user_id=id)
-
-    if object.message['text'].lower() == 'принять':
-        vk_token.groups.approveRequest(group_id=group_id, user_id=id)
-        vk.messages.send(**config, random_id=get_random_id(), user_id=editor,
-                         message='Принят ' + id,
-                         )
-        vk.messages.send(**config, random_id=get_random_id(), user_id=id,
-                         message='Заявка успешно принята! Не забудь ознакомиться с правилами:\n'
-                                 '>> https://vk.com/page-165101106_55801147 <<\n\nНапиши любое сообщение, '
-                                 'чтобы перейти к меню бота',
-                         )
-    elif object.message['text'].lower() == 'отклонить':
-        vk_token.groups.removeUser(group_id=group_id, user_id=id)
-        database.del_requests(id)
-        database.del_step(id, 'intr')
-        vk.messages.send(**config, random_id=get_random_id(), user_id=editor,
-                         message='Не принято',
-                         )
-        vk.messages.send(**config, random_id=get_random_id(), user_id=id,
-                         message='К сожалению, заявка была отклонена. Проверь, выполнены ли требования, правильные '
-                                 'ли даны ответы выше. Если ты допустил(а) ошибку, напиши "начать" и ответь на '
-                                 f'вопросы заново. По всем вопросам обращайся к [id{editor}|редактору] группы',
-                         )
+def help(vk, config, object):
+    user_id = object.message['from_id']
+    vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
+                     message='С помощью данного бота ты можешь поставить напоминание за несколько минут до любой '
+                             'имеющейся в клане деятельности.\n'
+                             'На любом этапе для управления можно использовать специальную клавиатуру/кнопки или писать'
+                             ' команды словами (без тире и других символов).\n'
+                             'Сейчас тебе доступны следующие команды:\n'
+                             '- создать напоминание — начнётся диалог для создания рассылки, где тебе необходимо '
+                             'будет указать деятельность, её время и за сколько минут нужно напоминать;\n '
+                             '- мои напоминания — покажет всю инфорамцию об установленных тобой напоминаниях;\n'
+                             '- удалить напоминания — жми сюда, если нужно удалить одну или несколько рассылок;\n'
+                             '- таблица занятости — здесь можешь узнать расписание всех клановых деятельностей и '
+                             'узнать на что ещё можно поставить напоминания;\n'
+                             '- предложить идею — если у тебя есть замечания по поводу работы бота или идею по его '
+                             'улучшению, то по этой команде ты можешь получить ссылку на анонимную гугл-форму.\n'
+                             'Если возникнут вопросы по клану — в контактах группы есть ссылки на представителей верха.'
+                             'По поводу технических неполадок обращайся к одному из редакторов '
+                             f'([id478936081|Вздох Восхищения] или [id{editor}|Пышный])',
+                     )
 
 
-def check_in_table(user_id):
+def check_in_table(vk, config, object):
+    user_id = object.message['from_id']
     tables = ['create_reminder', 'del_reminders']
     result = [database.check_step(user_id, x) for x in tables]
     if result == [0, 0]:
@@ -76,7 +62,6 @@ def table(vk, config, object):
                              'Самая Яркая Ночь - 18:00 в последнее воскресенье месяца',
                      attachment=attachment
                      )
-    start(vk, config, object)
 
 
 def idea(vk, config, object):
@@ -86,25 +71,63 @@ def idea(vk, config, object):
                              'анонимно выразить их здесь:\n>>https://docs.google.com/forms/d/13j-jeLwJngqZUReIn7RscG4GC'
                              '9g4CqSQ42hNWnkzrXg/edit?usp=sharing << '
                      )
-    start(vk, config, object)
+
 
 ###################### РЕДАКТОР #######################
 
 
+def editor_answer(function_to_decorate):
+    def editor_answer_base(vk, config, object):
+        vk_token = (VkApi(token=access_token)).get_api()
+        i = 1
+        id, member = '1', 1
+        while id[0] != '[' and member == 1:
+            last_message = vk.messages.getHistory(**config, group_id=group_id,
+                                                  count=1, offset=i, user_id=editor)
+            id = last_message['items'][0]['text']
+            i += 1
+            if id[0] == '[':
+                id = id[1:(id.find("]"))]
+                member = isMember(vk, token=token, group_id=group_id, user_id=id)
+        function_to_decorate(vk_token, vk, config, id)
+    return editor_answer_base
+
+
+@editor_answer
+def accept(vk_token, vk, config, id):
+    vk_token.groups.approveRequest(group_id=group_id, user_id=id)
+    vk.messages.send(**config, random_id=get_random_id(), user_id=editor,
+                     message='Принят ' + id,
+                     )
+    vk.messages.send(**config, random_id=get_random_id(), user_id=id,
+                     message='Заявка успешно принята! Не забудь ознакомиться с правилами:\n'
+                             '>> https://vk.com/page-165101106_55801147 <<\n\nНапиши любое сообщение, '
+                             'чтобы перейти к меню бота, или "помощь", чтобы узнать больше',
+                     )
+
+
+@editor_answer
+def reject(vk_token, vk, config, id):
+    vk_token.groups.removeUser(group_id=group_id, user_id=id)
+    database.del_requests(id)
+    database.del_step(id, 'intr')
+    vk.messages.send(**config, random_id=get_random_id(), user_id=editor,
+                     message='Не принято',
+                     )
+    vk.messages.send(**config, random_id=get_random_id(), user_id=id,
+                     message='К сожалению, заявка была отклонена. Проверь, выполнены ли требования, правильные '
+                             'ли даны ответы выше. Если ты допустил(а) ошибку, напиши "начать" и ответь на '
+                             f'вопросы заново. По всем вопросам обращайся к [id{editor}|редактору] группы',
+                     )
+
+
 def req(vk, config, object):
     user_id = object.message['from_id']
-    result = database.show_requests()
-    message = ''
-    if not result:
-        message = 'Заявок нет'
-    else:
-        for x in result:
-            vk_id, vk_name, id, name, position = str(x[0]), x[2], str(x[3]), x[4].title(), x[5]
-            message = f'{message}{position}\n|-\n| [[*id{vk_id}|{vk_name}]]\n| [*{name}|{id}]\n| [https://catwar.su/cat{id}]\n'
-        database.del_requests('')
-    vk.messages.send(**config, random_id=get_random_id(), user_id=user_id, dont_parse_links=1,
-                     message=message,
-                     )
+    result = object.message['text'].lower()[19::]
+    vk_id, vk_name, name, id, position = result.split(', ')
+    update_pages.add_member(vk_id, vk_name, name, id, position)
+    message = 'Внесено'
+    vk.messages.send(**config, random_id=get_random_id(), user_id=user_id, message=message)
 
 
 ###################### START ##########################
@@ -170,7 +193,8 @@ def create_reminder(vk, config, object):
             database.del_all(user_id, False)
             start(vk, config, object)
         else:
-            if not re.search('[^0-9]', object.message['text'], flags=re.IGNORECASE) and len(object.message['text']) <= 2:
+            if not re.search('[^0-9]', object.message['text'], flags=re.IGNORECASE) and len(
+                    object.message['text']) <= 2:
                 try:
                     database.add_action(user_id, None, None, object.message['text'])
                 except mysql.IntegrityError:
@@ -183,7 +207,6 @@ def create_reminder(vk, config, object):
                     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                      message='Успешно!',
                                      )
-                    start(vk, config, object)
             else:
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                  message='Проверь правильность ввода',
@@ -201,7 +224,6 @@ def show_reminders(vk, config, object):
     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                      message=message,
                      )
-    start(vk, config, object)
 
 
 def del_reminder(vk, config, object):
@@ -231,7 +253,6 @@ def del_reminder(vk, config, object):
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                                  message='Все напоминания успешно удалены',
                                  )
-                start(vk, config, object)
 
     if step == 2:
         if object.message['text'].lower() == 'выйти':
@@ -271,7 +292,6 @@ def del_reminder(vk, config, object):
                                          + ' в ' + time + ' удален(а) или у тебя не было такого напоминания'
                                  )
                                  )
-                start(vk, config, object)
 
             else:
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
@@ -281,11 +301,12 @@ def del_reminder(vk, config, object):
 
 def start(vk, config, object):
     user_id = object.message['from_id']
-    if user_id == editor:
-        perm = 1
-    else:
-        perm = 0
     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                      message='Выбери одну из функций:',
-                     keyboard=kb.kb_start(perm),
+                     keyboard=kb.kb_start(),
                      )
+
+
+editor_commands = {'принять': accept, 'отклонить': reject}
+user_commands = {'помощь': help, 'создать напоминание': create_reminder, 'мои напоминания': show_reminders,
+                 'удалить напоминания': del_reminder, 'таблица занятости': table, 'предложить идею': idea}
