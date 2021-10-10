@@ -2,18 +2,13 @@ from vk_api import VkApi
 from vk_api.utils import get_random_id
 from mysql.connector import errors as mysql
 from settings import *
+from update_pages import add_member
 
 import database
 import kb
 import re
 import actions
 import update_pages
-
-
-def isMember(vk, token, user_id, group_id):
-    if vk.groups.isMember(access_token=token, user_id=user_id, group_id=group_id):
-        return 1
-    return 0
 
 
 ###################### BASE #############################
@@ -80,15 +75,15 @@ def editor_answer(function_to_decorate):
     def editor_answer_base(vk, config, object):
         vk_token = (VkApi(token=access_token)).get_api()
         i = 1
-        id, member = '1', 1
-        while id[0] != '[' and member == 1:
+        message, member = '1', 1
+        while message != '[' and i < 10:
             last_message = vk.messages.getHistory(**config, group_id=group_id,
                                                   count=1, offset=i, user_id=editor)
-            id = last_message['items'][0]['text']
+            message = last_message['items'][0]['text']
             i += 1
-            if id[0] == '[':
-                id = id[1:(id.find("]"))]
-                member = isMember(vk, token=token, group_id=group_id, user_id=id)
+            if message[0] == '[':
+                id = message[1:(message.find("]"))]
+                break
         function_to_decorate(vk_token, vk, config, id)
     return editor_answer_base
 
@@ -96,8 +91,13 @@ def editor_answer(function_to_decorate):
 @editor_answer
 def accept(vk_token, vk, config, id):
     vk_token.groups.approveRequest(group_id=group_id, user_id=id)
+    result = database.show_request(id)
+    for x in result:
+        vk_id, vk_name, name, id, position = x[0], x[2], x[4], x[3], x[5]
+    add_member(vk_id, vk_name, name, id, position)
+    database.del_requests(vk_id)
     vk.messages.send(**config, random_id=get_random_id(), user_id=editor,
-                     message='Принят ' + id,
+                     message='Принят ' + str(id),
                      )
     vk.messages.send(**config, random_id=get_random_id(), user_id=id,
                      message='Заявка успешно принята! Не забудь ознакомиться с правилами:\n'

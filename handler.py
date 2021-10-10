@@ -2,16 +2,21 @@ import commands
 import introduction
 from settings import *
 
+managers = []
+
 
 def answer(vk, config, object):
+    for user in vk.groups.getMembers(group_id=group_id, filter='managers', access_token=access_token)['items']:
+        managers.append(user.get('id'))
+
     user_id = object.message['from_id']
     text = object.message['text'].lower()
 
-    if 1 == commands.isMember(vk, token=token, group_id=group_id, user_id=user_id):
-        if user_id == editor:
+    if 1 == vk.groups.isMember(access_token=token, user_id=user_id, group_id=group_id):
+        if user_id == editor or user_id in managers:
             if text in commands.editor_commands.keys():
                 command = commands.editor_commands.get(text)
-                commands.accept(vk, config, object)
+                command(vk, config, object)
             if text[0:18] == 'добавить в таблицу':
                 commands.req(vk, config, object)
 

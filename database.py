@@ -78,11 +78,12 @@ def del_all(user_id, time):
     return
 
 
-def show_requests():
+def show_request(user_id):
     connection = get_connection()
     cursor = connection.cursor()
-    add = "SELECT * FROM intr WHERE step = '6' ORDER BY name"
-    cursor.execute(add)
+    add = "SELECT * FROM intr WHERE vk_id = %s"
+    data = (user_id,)
+    cursor.execute(add, data)
     result = cursor.fetchall()
     cursor.close()
     connection.close()
