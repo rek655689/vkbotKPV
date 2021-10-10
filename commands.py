@@ -125,7 +125,7 @@ def req(vk, config, object):
     user_id = object.message['from_id']
     result = object.message['text'].lower()[19::]
     vk_id, vk_name, name, id, position = result.split(', ')
-    update_pages.add_member(vk_id, vk_name, name, id, position)
+    update_pages.add_member(vk_id, vk_name, name, id, position.lower())
     message = 'Внесено'
     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id, message=message)
 
