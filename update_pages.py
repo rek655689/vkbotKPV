@@ -41,8 +41,10 @@ positions = {'elects': elects, 'top': top, 'elders': elders, 'hunters': hunters,
 for_page = {'elders': 'старейшины!конец старейшины', 'guards 1': 'стражи!конец стражи', 'guards 2': 'стражи2!конец стражи2',
             'hunters 1': 'охотники!конц охотники', 'hunters 2': 'охотники2!конец охотники 2',
             'future_guards': 'будущие с! конец с', 'future_hunters': 'бдущие о! конец о',
-            'top': 'начало верх!конец верх', 'elects': 'избранники!конец', 'others': 'начало!конец'}
+            'top': 'начало верх!конец верх', 'elects': 'избранники!конец',
+            'others': "<center>[[photo350643392_457280584|51x66px;nopadding|page-165101106_55801160]][[photo350643392_457280585|86x66px;nopadding|page-165101106_55801147]][[photo350643392_457280616|73x66px;nopadding|page-165101106_56886361]][[photo350643392_457280587|76x66px;nopadding|page-165101106_56461101]][[photo350643392_457280588|68x66px;nopadding|page-165101106_56886994]][[photo350643392_457280589|66x66px;nopadding|https://vk.com/wall-165101106_2060]][[photo350643392_457280590|90x66px;nopadding|https://docs.google.com/forms/d/e/1FAIpQLSfPSd7DbT7oaIVEagDtZiS8FUd5PkWz9d0G9vuK4qPMhbl4Sg/viewform]]</center>\n<center>[[page-165101106_56490990|Верхушка]] | '''[[page-165101106_56591896|Старейшины]]''' | [[page-165101106_56846221|Избранники духов]]\n[[page-165101106_56807806|Стражи]] | [[page-165101106_56807807|Охотники]] | [[page-165101106_56490171|Будущие]]\n[[page-165101106_56808867|Прочие игроки]]</center>\n!конец"}
 
+# пирожок
 page_ids = {'elders': 56444175, 'guards 1': 56444151, 'guards 2': 56444152, 'hunters 1': 56444681, 'hunters 2': 56444732,
             'future_guards': 56444735, 'future_hunters': 56444736, 'top': 56445284, 'elects': 56445285, 'others': 56445286}
 
@@ -114,14 +116,19 @@ def check_members():
 
         profile = session.get(f'https://catwar.su/cat{id}').content.decode("utf-8")
         try:
-            # если нет имени или должности, значит чел не в клане
+            # если нет должности, значит чел не в клане
             real_position = BeautifulSoup(profile, 'html.parser').find('i').text.lower()
+        except AttributeError:
+            real_position = None
+
+        try:
+            # если нет имени , значит чел не в клане
             cw_name = BeautifulSoup(profile, 'html.parser').find('big').text
         except AttributeError:
-            real_position, cw_name = None, None
+            cw_name = None
 
         # if (vk.groups.isMember(group_id=group_id, user_id=vk_id) == 0) or position is None or cw_name is None:
-        if real_position is None or cw_name is None:
+        if (real_position is None and position != 'разрешение') or cw_name is None:
             # если чел не в клане - убираем из таблицы
             df = df.drop(index)
             if vk.groups.isMember(group_id=group_id, user_id=vk_id) == 1:
@@ -143,22 +150,18 @@ def check_members():
                 df.loc[index, 'position'] = real_position
 
         if real_position is not None and get_key(positions, real_position) is None:
-            # если должность существует, но у нас таких нет, записываем
+            # если должность существует, но у нас таких нет, удаляем
             df = df.drop(index)
-            none_pos += str(vk_id) + '—' + str(id) + ' '
             continue
     df = df.drop_duplicates()
     df.to_csv('table.csv', index=False)
-    vk.messages.send(**config, random_id=get_random_id(), user_id=editor,
-                     message='Другие должности: ' + none_pos,
-                     )
 
 
 def add_member(vk_id, vk_name, name, id, position):
     """Добавление в csv"""
-    with open('table.csv', mode="w", encoding='utf-8') as file:
+    with open('table.csv', mode="a", encoding='utf-8') as file:
         writer = csv.writer(file, delimiter=",", lineterminator="\r")
-        writer.writerow([vk_id, vk_name, name, id, position])
+        writer.writerow([vk_id, vk_name.title(), name.title(), id, position])
 
 
 def add_to_page():
@@ -167,8 +170,8 @@ def add_to_page():
     df = df.drop_duplicates()
 
     for key, value in positions.items():
-        key = 'others'
-        value = others
+        key = 'top'
+        value = top
         rows = df.loc[df['position'].isin(value)]
         rows = rows.sort_values('name')
 

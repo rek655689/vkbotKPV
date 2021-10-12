@@ -82,16 +82,16 @@ def editor_answer(function_to_decorate):
             message = last_message['items'][0]['text']
             i += 1
             if message[0] == '[':
-                id = message[1:(message.find("]"))]
+                user_id = message[1:(message.find("]"))]
                 break
-        function_to_decorate(vk_token, vk, config, id)
+        function_to_decorate(vk_token, vk, config, user_id)
     return editor_answer_base
 
 
 @editor_answer
-def accept(vk_token, vk, config, id):
-    vk_token.groups.approveRequest(group_id=group_id, user_id=id)
-    result = database.show_request(id)
+def accept(vk_token, vk, config, user_id):
+    vk_token.groups.approveRequest(group_id=group_id, user_id=user_id)
+    result = database.show_request(user_id)
     for x in result:
         vk_id, vk_name, name, id, position = x[0], x[2], x[4], x[3], x[5]
     add_member(vk_id, vk_name, name, id, position)
@@ -99,7 +99,7 @@ def accept(vk_token, vk, config, id):
     vk.messages.send(**config, random_id=get_random_id(), user_id=editor,
                      message='Принят ' + str(id),
                      )
-    vk.messages.send(**config, random_id=get_random_id(), user_id=id,
+    vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                      message='Заявка успешно принята! Не забудь ознакомиться с правилами:\n'
                              '>> https://vk.com/page-165101106_55801147 <<\n\nНапиши любое сообщение, '
                              'чтобы перейти к меню бота, или "помощь", чтобы узнать больше',
