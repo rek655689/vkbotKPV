@@ -1,5 +1,6 @@
 import update_pages
 import time
+import traceback
 
 
 seconds = time.time()
@@ -10,4 +11,4 @@ try:
     update_pages.add_to_page()
 except Exception as e:
     with open('errors.txt', 'a') as f:
-        f.write('\nPages: ' + local_time + ' ' + str(e) + '\n')
+        f.write('\nPages: '+local_time+' '+str(e)+'\n'+traceback.print_exc())

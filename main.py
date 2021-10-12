@@ -4,6 +4,7 @@ import vk_api
 from vk_api.bot_longpoll import VkBotEventType
 import connection
 import handler
+import traceback
 
 seconds = time.time()
 local_time = time.ctime(seconds)
@@ -20,5 +21,5 @@ while True:
     except Exception as e:
         time.sleep(5)
         with open('errors.txt', 'a') as f:
-            f.write('\nMain: '+local_time+' '+str(e))
+            f.write('\nMain: '+local_time+' '+str(e)+'\n'+traceback.print_exc())
         continue

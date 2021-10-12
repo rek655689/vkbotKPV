@@ -6,6 +6,7 @@ import time
 import vk_api
 import requests
 import connection
+import traceback
 
 seconds = time.time()
 local_time = time.ctime(seconds)
@@ -95,5 +96,5 @@ while True:
         time.sleep(1)
     except Exception as e:
         with open('errors.txt', 'a') as f:
-            f.write('\nTime: '+local_time+' '+str(e))
+            f.write('\nTime: '+local_time+' '+str(e)+'\n'+traceback.print_exc())
         continue
