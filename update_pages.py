@@ -171,6 +171,8 @@ def add_to_page():
     df = df.drop_duplicates()
 
     for key, value in positions.items():
+        key = 'elects'
+        value = elects
         rows = df.loc[df['position'].isin(value)]
         rows = rows.sort_values('name')
 
@@ -244,23 +246,26 @@ def add_to_page():
             laska = "<center>'''Избранники Ласки'''</center>\n{|\n"
             img_ivolga = ('<img border="0" src="http://images.vfl.ru/ii/1604159092/1dda3f82/32141463.png"/>',
                           '<img border="0" src="http://images.vfl.ru/ii/1615720730/9aab1182/33672466.gif"/>')
-            img_lisa = ('<img border="0" src="http://images.vfl.ru/ii/1604159092/448b5ed6/32141465.png"/>',)
+            img_lisa = ('<img border="0" src="http://images.vfl.ru/ii/1604159092/448b5ed6/32141465.png"/>', 'https://s6.gifyu.com/images/AKTIVISTLISOV.gif')
             img_laska = ('<img border="0" src="http://images.vfl.ru/ii/1604159092/ed9c5fbd/32141464.png"/>',)
 
             for row in rows.itertuples(index=True, name=None):
                 index, vk_id, vk_name, name, id, position = row[0], row[1], row[2], row[3], row[4], row[5]
                 profile = session.get(f'https://catwar.su/cat{id}').content.decode("utf-8")
-                elect = BeautifulSoup(profile, 'html.parser').find_all('img')
+                elect = BeautifulSoup(profile, 'html.parser').find_all(border='0')
                 for img in elect:
                     img = str(img)
                     if img in img_ivolga:
                         ivolga += f'|-\n| [[id{vk_id}|{vk_name}]]\n| [{name}|{id}]\n| [https://catwar.su/cat{id}]\n'
+                        break
                     elif img in img_laska:
                         laska += f'|-\n| [[id{vk_id}|{vk_name}]]\n| [{name}|{id}]\n| [https://catwar.su/cat{id}]\n'
+                        break
                     elif img in img_lisa:
                         lisa += f'|-\n| [[id{vk_id}|{vk_name}]]\n| [{name}|{id}]\n| [https://catwar.su/cat{id}]\n'
-                    else:
-                        print(f'\n{img} не найден')
+                        break
+                else:
+                    print(f'\n{elect} не найден')
                 print(index, vk_id, vk_name, name, id, position)
             text += ivolga + '|}\n' + lisa + '|}\n' + laska + '|}\n' + end
 
