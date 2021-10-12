@@ -94,7 +94,7 @@ while True:
     try:
         schedule.run_pending()
         time.sleep(1)
-    except Exception as e:
+    except Exception:
         with open('errors.txt', 'a') as f:
-            f.write('\nTime: '+local_time+' '+str(e)+'\n'+traceback.print_exc())
+            f.write('\nTime: '+local_time+'\n'+traceback.format_exc())
         continue

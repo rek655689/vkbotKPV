@@ -18,8 +18,8 @@ while True:
             if event.type == VkBotEventType.MESSAGE_NEW and event.from_user:
                 handler.answer(vk, config, event.object)
                 continue
-    except Exception as e:
+    except Exception:
         time.sleep(5)
         with open('errors.txt', 'a') as f:
-            f.write('\nMain: '+local_time+' '+str(e)+'\n'+traceback.print_exc())
+            f.write('\nMain: '+local_time+'\n'+traceback.format_exc())
         continue
