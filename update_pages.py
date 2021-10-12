@@ -106,7 +106,6 @@ def get_members():
 
 def check_members():
     """Проверка игроков в таблице на нахождение в клане, правильность должности/имени/имени в ВК"""
-    none_pos = ''
 
     df = pd.read_csv('table.csv')
 
@@ -131,6 +130,7 @@ def check_members():
         if (real_position is None and position != 'разрешение') or cw_name is None:
             # если чел не в клане - убираем из таблицы
             df = df.drop(index)
+            print(f'\n{vk_id} удалён')
             if vk.groups.isMember(group_id=group_id, user_id=vk_id) == 1:
                 # если чел при этом участник группы - кикаем
                 vk_token.groups.removeUser(group_id=group_id, user_id=vk_id)
@@ -152,6 +152,7 @@ def check_members():
         if real_position is not None and get_key(positions, real_position) is None:
             # если должность существует, но у нас таких нет, удаляем
             df = df.drop(index)
+            print(f'\n{vk_id} удалён')
             continue
     df = df.drop_duplicates()
     df.to_csv('table.csv', index=False)
@@ -170,8 +171,6 @@ def add_to_page():
     df = df.drop_duplicates()
 
     for key, value in positions.items():
-        key = 'top'
-        value = top
         rows = df.loc[df['position'].isin(value)]
         rows = rows.sort_values('name')
 
@@ -243,9 +242,10 @@ def add_to_page():
             ivolga = "<center>'''Избранники Иволги'''</center>\n{|\n"
             lisa = "<center>'''Избранники Лисы'''</center>\n{|\n"
             laska = "<center>'''Избранники Ласки'''</center>\n{|\n"
-            img_ivolga = '<img border="0" src="http://images.vfl.ru/ii/1604159092/1dda3f82/32141463.png"/>'
-            img_lisa = '<img border="0" src="http://images.vfl.ru/ii/1604159092/448b5ed6/32141465.png"/>'
-            img_laska = '<img border="0" src="http://images.vfl.ru/ii/1604159092/ed9c5fbd/32141464.png"/>'
+            img_ivolga = ('<img border="0" src="http://images.vfl.ru/ii/1604159092/1dda3f82/32141463.png"/>',
+                          '<img border="0" src="http://images.vfl.ru/ii/1615720730/9aab1182/33672466.gif"/>')
+            img_lisa = ('<img border="0" src="http://images.vfl.ru/ii/1604159092/448b5ed6/32141465.png"/>',)
+            img_laska = ('<img border="0" src="http://images.vfl.ru/ii/1604159092/ed9c5fbd/32141464.png"/>',)
 
             for row in rows.itertuples(index=True, name=None):
                 index, vk_id, vk_name, name, id, position = row[0], row[1], row[2], row[3], row[4], row[5]
@@ -253,12 +253,14 @@ def add_to_page():
                 elect = BeautifulSoup(profile, 'html.parser').find_all('img')
                 for img in elect:
                     img = str(img)
-                    if img == img_ivolga:
+                    if img in img_ivolga:
                         ivolga += f'|-\n| [[id{vk_id}|{vk_name}]]\n| [{name}|{id}]\n| [https://catwar.su/cat{id}]\n'
-                    elif img == img_laska:
+                    elif img in img_laska:
                         laska += f'|-\n| [[id{vk_id}|{vk_name}]]\n| [{name}|{id}]\n| [https://catwar.su/cat{id}]\n'
-                    elif img == img_lisa:
+                    elif img in img_lisa:
                         lisa += f'|-\n| [[id{vk_id}|{vk_name}]]\n| [{name}|{id}]\n| [https://catwar.su/cat{id}]\n'
+                    else:
+                        print(f'\n{img} не найден')
                 print(index, vk_id, vk_name, name, id, position)
             text += ivolga + '|}\n' + lisa + '|}\n' + laska + '|}\n' + end
 
