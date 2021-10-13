@@ -2,7 +2,7 @@ from vk_api import VkApi
 from vk_api.utils import get_random_id
 from mysql.connector import errors as mysql
 from settings import *
-from update_pages import add_member
+from update_pages import add_member, edit_member
 
 import database
 import kb
@@ -127,6 +127,14 @@ def req(vk, config, object):
     vk_id, vk_name, name, id, position = result.split(', ')
     update_pages.add_member(vk_id, vk_name, name, id, position.lower())
     message = 'Внесено'
+    vk.messages.send(**config, random_id=get_random_id(), user_id=user_id, message=message)
+
+
+def edit_position(vk, config, object):
+    user_id = object.message['from_id']
+    id = object.message['text'][18::]
+    update_pages.edit_member(id)
+    message = 'Изменено'
     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id, message=message)
 
 

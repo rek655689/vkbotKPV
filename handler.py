@@ -19,6 +19,8 @@ def answer(vk, config, object):
                 command(vk, config, object)
             if text[0:18] == 'добавить в таблицу':
                 commands.req(vk, config, object)
+            if text[0:17] == 'оставить в группе':
+                commands.edit_position(vk, config, object)
 
         table = commands.check_in_table(vk, config, object)
         if table:

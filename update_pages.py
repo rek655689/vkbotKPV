@@ -165,6 +165,19 @@ def add_member(vk_id, vk_name, name, id, position):
         writer.writerow([vk_id, vk_name.title(), name.title(), id, position])
 
 
+def edit_member(user_id):
+    """Изменить должность в csv"""
+    df = pd.read_csv('table.csv')
+    i = len((df.loc[df['id'] == user_id]).index)
+    while i > 0:
+        for row in df.itertuples(index=True, name=None):
+            index, id = row[0], row[4]
+            if id == user_id:
+                df.loc[index, 'position'] = 'разрешение'
+                i -= 1
+    df.to_csv('table.csv', index=False)
+
+
 def add_to_page():
     """Перенос из таблицы excel на wiki-страницы"""
     df = pd.read_csv('table.csv')
@@ -325,6 +338,3 @@ def add_to_page():
 
             page_id = page_ids.get(key)
             vk_token.pages.save(text=text, page_id=page_id, group_id=group_id)
-
-
-add_member(597786732,'Aneurin Christensen-Barnes','Жжжжжжжж',666,'страж')
