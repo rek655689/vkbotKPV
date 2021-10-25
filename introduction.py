@@ -1,6 +1,8 @@
 from vk_api import VkApi
 from vk_api.utils import get_random_id
 from settings import *
+import managers
+from threading import Timer
 
 import database
 import kb
@@ -142,8 +144,7 @@ def intr(vk, config, object):
                 vk_name = vk_name['first_name'] + ' ' + vk_name['last_name']
                 database.add_inf(user_id, 'vk_name', vk_name)
                 vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                                 message='Твоя заявка была отправлена редактору группы, осталось дождаться её '
-                                         'одобрения.',
+                                 message='Твоя заявка отправлена, осталось дождаться её одобрения.',
                                  )
 
                 # ОТПРАВКА РЕДАКТОРУ
@@ -155,13 +156,31 @@ def intr(vk, config, object):
                 else:
                     last_name = '(ранее ' + str(last_name) + ')'
 
-                vk.messages.send(**config, random_id=get_random_id(), user_id=editor,
-                                 message=f"[{user_id}] \n {name} {last_name} \n {position} \n https://catwar.su/cat{id}",
-                                 forward_messages=message_id,
-                                 keyboard=kb.kb_request()
-                                 )
+                last_manager_id = managers.last_manager(vk)
+
+                req_message_id = vk.messages.send(**config, random_id=get_random_id(), user_id=last_manager_id,
+                                                  message=f"[{user_id}] \n {name} {last_name} \n {position} \n https://catwar.su/cat{id}",
+                                                  forward_messages=message_id,
+                                                  keyboard=kb.kb_request(user_id)
+                                                  )
+                database.add_ids(req_message_id, last_manager_id, user_id)
+
+                def send_all_managers():
+                    if not vk.groups.isMember(access_token=token, user_id=user_id, group_id=group_id):
+                        for manager_id in managers.get(vk)[1]:
+                            if manager_id == last_manager_id:
+                                continue
+                            req_message_id = vk.messages.send(**config, random_id=get_random_id(), user_id=manager_id,
+                                                              message=f"[{user_id}] \n {name} {last_name} \n {position} \n https://catwar.su/cat{id}",
+                                                              forward_messages=message_id,
+                                                              keyboard=kb.kb_request(user_id)
+                                                              )
+                            database.add_ids(req_message_id, last_manager_id, user_id)
+
+                t = Timer(600.0, send_all_managers)
+                t.start()
 
     if step == 6:  # ожидание одобрения
         vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
-                         message='Твоя заявка была отправлена редактору группы, осталось дождаться её одобрения',
+                         message='Твоя заявка отправлена, осталось дождаться её одобрения.',
                          )

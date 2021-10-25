@@ -30,7 +30,7 @@ def help(vk, config, object):
                              '- предложить идею — если у тебя есть замечания по поводу работы бота или идею по его '
                              'улучшению, то по этой команде ты можешь получить ссылку на анонимную гугл-форму.\n'
                              'Если возникнут вопросы по клану — в контактах группы есть ссылки на представителей верха.'
-                             'По поводу технических неполадок обращайся к одному из редакторов '
+                             ' По поводу технических неполадок обращайся к одному из редакторов '
                              f'([id478936081|Вздох Восхищения] или [id{editor}|Пышный])',
                      )
 
@@ -73,31 +73,37 @@ def idea(vk, config, object):
 
 def editor_answer(function_to_decorate):
     def editor_answer_base(vk, config, object):
+        text = object.message['text'].lower()
+        manager = object.message['from_id']
+        if text[0:7] == 'принять':
+            user_id = text[8:]
+        else:
+            user_id = text[10:]
         vk_token = (VkApi(token=access_token)).get_api()
-        i = 1
-        message, member = '1', 1
-        while message != '[' and i < 10:
-            last_message = vk.messages.getHistory(**config, group_id=group_id,
-                                                  count=1, offset=i, user_id=editor)
-            message = last_message['items'][0]['text']
-            i += 1
-            if message[0] == '[':
-                user_id = message[1:(message.find("]"))]
-                break
-        function_to_decorate(vk_token, vk, config, user_id)
+
+        function_to_decorate(vk_token, vk, config, user_id, manager)
+
+        database.del_requests(user_id)
+        result = database.select_managers(user_id)
+        for x in result:
+            message_id, manager_id = x[0], x[1]
+            if manager_id != manager:
+                vk.messages.delete(message_ids=message_id, group_id=group_id, delete_for_all=1, peer_id=manager_id)
+
+        database.delete_ids(user_id)
+
     return editor_answer_base
 
 
 @editor_answer
-def accept(vk_token, vk, config, user_id):
+def accept(vk_token, vk, config, user_id, manager):
     vk_token.groups.approveRequest(group_id=group_id, user_id=user_id)
     result = database.show_request(user_id)
     for x in result:
         vk_id, vk_name, name, id, position = x[0], x[2], x[4], x[3], x[5]
     add_member(vk_id, vk_name, name, id, position)
-    database.del_requests(vk_id)
-    vk.messages.send(**config, random_id=get_random_id(), user_id=editor,
-                     message='Принят ' + str(id),
+    vk.messages.send(**config, random_id=get_random_id(), user_id=manager,
+                     message='Принят ' + str(vk_id),
                      )
     vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                      message='Заявка успешно принята! Не забудь ознакомиться с правилами:\n'
@@ -107,14 +113,12 @@ def accept(vk_token, vk, config, user_id):
 
 
 @editor_answer
-def reject(vk_token, vk, config, id):
-    vk_token.groups.removeUser(group_id=group_id, user_id=id)
-    database.del_requests(id)
-    database.del_step(id, 'intr')
-    vk.messages.send(**config, random_id=get_random_id(), user_id=editor,
-                     message='Не принято',
+def reject(vk_token, vk, config, user_id, manager):
+    vk_token.groups.removeUser(group_id=group_id, user_id=user_id)
+    vk.messages.send(**config, random_id=get_random_id(), user_id=manager,
+                     message='Не принят ' + str(user_id),
                      )
-    vk.messages.send(**config, random_id=get_random_id(), user_id=id,
+    vk.messages.send(**config, random_id=get_random_id(), user_id=user_id,
                      message='К сожалению, заявка была отклонена. Проверь, выполнены ли требования, правильные '
                              'ли даны ответы выше. Если ты допустил(а) ошибку, напиши "начать" и ответь на '
                              f'вопросы заново. По всем вопросам обращайся к [id{editor}|редактору] группы',
@@ -315,6 +319,5 @@ def start(vk, config, object):
                      )
 
 
-editor_commands = {'принять': accept, 'отклонить': reject}
 user_commands = {'помощь': help, 'создать напоминание': create_reminder, 'мои напоминания': show_reminders,
                  'удалить напоминания': del_reminder, 'таблица занятости': table, 'предложить идею': idea}

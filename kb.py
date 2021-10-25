@@ -36,10 +36,10 @@ def kb_position():
     return keyboard.get_keyboard()
 
 
-def kb_request():
-    keyboard = VkKeyboard(one_time=True)
-    keyboard.add_button('Принять', color=VkKeyboardColor.POSITIVE)
-    keyboard.add_button('Отклонить', color=VkKeyboardColor.NEGATIVE)
+def kb_request(user_id):
+    keyboard = VkKeyboard(inline=True)
+    keyboard.add_button(f'Принять {user_id}', color=VkKeyboardColor.POSITIVE)
+    keyboard.add_button(f'Отклонить {user_id}', color=VkKeyboardColor.NEGATIVE)
     return keyboard.get_keyboard()
 
 

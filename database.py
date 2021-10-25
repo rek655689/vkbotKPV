@@ -93,13 +93,9 @@ def show_request(user_id):
 def del_requests(user_id):
     connection = get_connection()
     cursor = connection.cursor()
-    if user_id:
-        add = "DELETE FROM intr WHERE vk_id = %s"
-        data = (user_id,)
-        cursor.execute(add, data)
-    else:
-        add = "DELETE FROM intr"
-        cursor.execute(add)
+    add = "DELETE FROM intr WHERE vk_id = %s"
+    data = (user_id,)
+    cursor.execute(add, data)
     connection.commit()
     cursor.close()
     connection.close()
@@ -183,6 +179,43 @@ def get_req(user_id):
     cursor.close()
     connection.close()
     return result
+
+
+def add_ids(message_id, last_manager_id, user_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    add = "INSERT INTO req_manager (message_id, manager_id, vk_id) VALUES(%s, %s, %s)"
+    data = (message_id, last_manager_id, user_id)
+    cursor.execute(add, data)
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return
+
+
+def delete_ids(user_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    add = "DELETE FROM req_manager WHERE vk_id = %s"
+    data = (user_id,)
+    cursor.execute(add, data)
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return
+
+
+def select_managers(user_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    add = "SELECT message_id, manager_id FROM req_manager WHERE vk_id = %s"
+    data = (user_id,)
+    cursor.execute(add, data)
+    result = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return result
+
 
 
 ######################## УДАЛЕНИЕ НАПОМИНАНИЙ ######################
