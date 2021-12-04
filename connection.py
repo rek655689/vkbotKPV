@@ -1,7 +1,6 @@
-from settings import *
 
 
-def connect(vk_api, requests, time, local_time):
+def connect(vk_api, requests, time,  local_time):
     from vk_api.bot_longpoll import VkBotLongPoll
 
     class SecureVkLongPoll(VkBotLongPoll):
@@ -12,7 +11,6 @@ def connect(vk_api, requests, time, local_time):
                     for event in self.check():
                         yield event
                 except requests.exceptions.ReadTimeout as e:
-                    time.sleep(5)
                     with open('errors.txt', 'a') as f:
                         f.write('\nMain: '+local_time+" лонгпул сбросил соединение: "+str(e)+'\n')
 

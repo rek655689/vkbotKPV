@@ -1,10 +1,93 @@
 import mysql.connector
-from settings import *
+from typing import List, Tuple, Dict, Set
 
 
-def get_connection():
-    connection = mysql.connector.connect(**database, database='default', auth_plugin='mysql_native_password')
-    return connection
+class Database:
+
+    def __init__(self, database):
+        self.connection = mysql.connector.connect(**database)
+
+    def users(self, vk_id: int, func: str, column: str = None, value: int or str = None) -> List[tuple] or List[None]:
+        """Получение данных/обновление таблицы с вступающими в группу пользователями
+
+        vk_id: id пользователя ВКонтакте
+        func: что необходимо сделать: get - получить, set - добавить, del - удалить
+        column: столбец с которым нужно работать, при значении all возвращает всё
+        value: значение, которое нужно вставить в таблицу"""
+
+        self.connection.reconnect()
+        cursor = self.connection.cursor()
+        if func == 'get':
+            if column == 'all':
+                cursor.execute(f"SELECT * FROM users WHERE vk_id = {vk_id}")
+            else:
+                cursor.execute(f"SELECT {column} FROM users WHERE vk_id = {vk_id}")
+            result = cursor.fetchall()
+            return result
+        if func == 'set':
+            cursor.execute(
+                f"INSERT users (vk_id, {column}) VALUES({vk_id}, '{value}') ON DUPLICATE KEY UPDATE {column}=VALUES({column})")
+            self.connection.commit()
+        if func == 'add':
+            cursor.execute(f"INSERT users (vk_id) VALUES({vk_id})")
+            self.connection.commit()
+        if func == 'del':
+            cursor.execute(f"DELETE FROM users WHERE vk_id = {vk_id}")
+            self.connection.commit()
+        cursor.close()
+
+    def intr(self, vk_id: int, func: str, column: str = None, value: int or str = None) -> List[tuple] or List[None]:
+        """Получение данных/обновление таблицы с вступающими в группу пользователями
+
+        vk_id: id пользователя ВКонтакте
+        func: что необходимо сделать: get - получить данные, set - добавить, del - удалить
+        column: столбец с которым нужно работать, при значении all возвращает всё
+        value: значение, которое нужно вставить в таблицу"""
+
+        self.connection.reconnect()
+        cursor = self.connection.cursor()
+        if func == 'get':
+            if column == 'all':
+                cursor.execute(f"SELECT * FROM intr WHERE vk_id = {vk_id}")
+            else:
+                cursor.execute(f"SELECT {column} FROM intr WHERE vk_id = {vk_id}")
+            result = cursor.fetchall()
+            return result
+        if func == 'set':
+            cursor.execute(f"INSERT intr (vk_id, {column}) VALUES({vk_id}, '{value}') ON DUPLICATE KEY UPDATE {column}=VALUES({column})")
+            self.connection.commit()
+        if func == 'del':
+            cursor.execute(f"DELETE FROM intr WHERE vk_id = {vk_id}")
+            self.connection.commit()
+        cursor.close()
+
+    def req_manager(self, vk_id: int, func: str, column: str = None, value: int or str = None) -> List[tuple] or List[None]:
+        """Получение данных/обновление таблицы с вступающими в группу пользователями
+
+        vk_id: id пользователя ВКонтакте
+        func: что необходимо сделать: get - получить данные, set - добавить, del - удалить
+        column: столбец с которым нужно работать, при значении all возвращает всё
+        value: значение, которое нужно вставить в таблицу"""
+
+        self.connection.reconnect()
+        cursor = self.connection.cursor()
+        if func == 'get':
+            if column == 'all':
+                cursor.execute(f"SELECT * FROM req_manager WHERE vk_id = {vk_id}")
+            else:
+                cursor.execute(f"SELECT {column} FROM req_manager WHERE vk_id = {vk_id}")
+            result = cursor.fetchall()
+            return result
+        if func == 'set':
+            cursor.execute(f"INSERT req_manager (vk_id, {column}) VALUES({vk_id}, '{value}') ON DUPLICATE KEY UPDATE {column}=VALUES({column})")
+            self.connection.commit()
+        if func == 'del':
+            cursor.execute(f"DELETE FROM req_manager WHERE vk_id = {vk_id}")
+            self.connection.commit()
+        cursor.close()
+
+
+
 
 
 def add_member(user_id, vk_name, id, name, position):

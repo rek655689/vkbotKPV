@@ -1,7 +1,6 @@
 import commands
 import managers
 import introduction
-from settings import *
 
 
 def answer(vk, config, object):

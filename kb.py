@@ -1,10 +1,32 @@
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
+import json
 
 
-def kb_exit():
-    keyboard = VkKeyboard(inline=True)
-    keyboard.add_button('Выйти', color=VkKeyboardColor.NEGATIVE)
-    return keyboard.get_keyboard()
+class Keyboard:
+    """Варианты клавиатуры
+
+    inline: кнопки в сообщении
+    one_time: кнопки исчезают после отправки сообщения"""
+
+    @staticmethod
+    def exit() -> str:
+        keyboard = VkKeyboard(inline=True)
+        keyboard.add_callback_button('Выйти', color=VkKeyboardColor.NEGATIVE)
+        return keyboard.get_keyboard()
+
+    @staticmethod
+    def anket() -> str:
+        keyboard = VkKeyboard(inline=True)
+        keyboard.add_callback_button('Да', color=VkKeyboardColor.POSITIVE)
+        keyboard.add_callback_button('Нет', color=VkKeyboardColor.NEGATIVE)
+        return keyboard.get_keyboard()
+
+    @staticmethod
+    def request(user_id) -> str:
+        keyboard = VkKeyboard(inline=True)
+        keyboard.add_button(f'Принять {user_id}', color=VkKeyboardColor.POSITIVE)
+        keyboard.add_button(f'Отклонить {user_id}', color=VkKeyboardColor.NEGATIVE)
+        return keyboard.get_keyboard()
 
 
 def kb_introduction():
@@ -33,13 +55,6 @@ def kb_position():
     keyboard.add_button('Котёнок', color=VkKeyboardColor.SECONDARY)
     keyboard.add_line()
     keyboard.add_button('Выйти', color=VkKeyboardColor.NEGATIVE)
-    return keyboard.get_keyboard()
-
-
-def kb_request(user_id):
-    keyboard = VkKeyboard(inline=True)
-    keyboard.add_button(f'Принять {user_id}', color=VkKeyboardColor.POSITIVE)
-    keyboard.add_button(f'Отклонить {user_id}', color=VkKeyboardColor.NEGATIVE)
     return keyboard.get_keyboard()
 
 

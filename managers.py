@@ -5,7 +5,7 @@ def get(vk):
     managers = []
     all = []
     for user in vk.groups.getMembers(group_id=group_id, filter='managers', access_token=access_token)['items']:
-        if user.get('role') == 'editor':
+        if user.get('role') == 'editor' or user.get('role') == 'creator':
             managers.append(user.get('id'))
             all.append(user.get('id'))
         else:

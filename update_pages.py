@@ -1,4 +1,3 @@
-from settings import *
 import vk_api
 import connection
 import requests

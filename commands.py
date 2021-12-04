@@ -1,7 +1,6 @@
 from vk_api import VkApi
 from vk_api.utils import get_random_id
 from mysql.connector import errors as mysql
-from settings import *
 from update_pages import add_member, edit_member
 
 import database
@@ -87,8 +86,9 @@ def editor_answer(function_to_decorate):
         result = database.select_managers(user_id)
         for x in result:
             message_id, manager_id = x[0], x[1]
-            if manager_id != manager:
-                vk.messages.delete(message_ids=message_id, group_id=group_id, delete_for_all=1, peer_id=manager_id)
+            if manager_id == manager:
+                continue
+            vk.messages.delete(message_ids=message_id, group_id=group_id, delete_for_all=1, peer_id=manager_id)
 
         database.delete_ids(user_id)
 
