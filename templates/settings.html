@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}Настройки напоминаний{% endblock %}
+{% block content %}
+    <h3>Установленные</h3>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col" width="30%">Название деятельности</th>
+            <th scope="col">Время</th>
+            <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in rows_now %}
+        {% set id = row[0] %}
+        <tr data-action="{{id}}">
+            <td>{{row[1]}}</td>
+            <td><button type="button" class="btn btn-secondary btn-sm" name="btn_show" data-category="now">показать</button></td>
+            <td style="vertical-align: middle;"><button type="button" class="btn btn-primary btn-sm" name="btn_upd" hidden>обновить</button></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <h5>Уникальные</h5>
+    <table class="table">
+    <thead>
+    <tr>
+        <th scope="col" width="30%">Название деятельности</th>
+        <th scope="col">Расписание</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for row in rows_unique_now %}
+    {% set id = row[0] %}
+    {% set time = row[3] %}
+    <tr>
+        <td>{{row[1]}}</td>
+        {% if time == '5' %}
+        <td><div name="unique_upd"><input class="form-check-input" type="checkbox" style="margin-right: 5px;" value="u{{id}}" id="u_n{{id}}">
+            <label class="form-check-label" for="u_n{{id}}">{{row[2]}}</label>
+            <select class="form-select form-select-sm" style="margin-left: 3px;" name="u_rtime">
+                <option value="5">5</option>
+                <option value="10">10</option>
+            </select>
+        </div>
+        </td>
+        {% else %}
+        <td><div name="unique_upd"><input class="form-check-input" type="checkbox" style="margin-right: 5px;" value="u{{id}}" id="u_n{{id}}">
+            <label class="form-check-label" for="u_n{{id}}">{{row[2]}}</label>
+            <select class="form-select form-select-sm" style="margin-left: 3px;" name="u_rtime">
+                <option value="10">10</option>
+                <option value="5">5</option>
+            </select>
+        </div>
+        </td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+    <button type="button" class="btn btn-primary btn-sm" name="btn_upd" data-rank="unique">обновить</button>
+    <br><br><br>
+    <h3>Доступные</h3>
+    <table class="table">
+    <thead>
+    <tr>
+        <th scope="col" width="30%">Название деятельности</th>
+        <th scope="col">Расписание</th>
+        <th scope="col"></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for row in rows_available %}
+    {% set id = row[0] %}
+    <tr data-action="{{id}}">
+        <td>{{row[1]}}</td>
+        <td><button type="button" class="btn btn-secondary btn-sm" name="btn_show" data-category="av">показать</button></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+    <br>
+    <h5>Уникальные</h5>
+    <table class="table">
+    <thead>
+    <tr>
+        <th scope="col" width="30%">Название деятельности</th>
+        <th scope="col">Расписание</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for row in rows_unique_available %}
+    {% set id = row[0] %}
+    {% set checked = row[3] %}
+    <tr>
+        <td>{{row[1]}}</td>
+        {% if checked %}
+        <td><input class="form-check-input" type="checkbox" style="margin-right: 5px;" value="u{{id}}" id="u_a{{id}}" checked disabled>
+            <label class="form-check-label" for="u_a{{id}}">{{row[2]}}</label>
+        </td>
+        {% else %}
+        <td><div name="unique_add"><input class="form-check-input" type="checkbox" style="margin-right: 5px;" value="u{{id}}" id="u_a{{id}}">
+            <label class="form-check-label" for="u_a{{id}}">{{row[2]}}</label>
+            <select class="form-select form-select-sm" style="margin-left: 3px;" name="u_rtime">
+                <option value="5">5</option>
+                <option value="10">10</option>
+            </select>
+        </div>
+        </td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+    <button type="button" class="btn btn-success btn-sm" name="btn_add" data-rank="unique">добавить</button>
+{% endblock %}

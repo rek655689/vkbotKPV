@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    image: rek655869/vkbotkpv
+    restart: always
+    volumes:
+      - .:/app/vkbotkpv
+      - ../settings.py:/app/settings.py
+    environment:
+      - PYTHONUNBUFFERED=True
+      - SETTINGS=/app/settings.py
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["python", "main.py"]
+
+  db:
+    image: mysql
+    command: >
+          bash -c "
+          chmod 644 /etc/mysql/conf.d/*.cnf
+          && /entrypoint.sh mysqld
+          "
+    restart: always
+    volumes:
+      - ./my.cnf:/etc/mysql/conf.d/collation.cnf
+      - ../dump.sql:/docker-entrypoint-initdb.d/dump.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: mtucfDfjBn@82sQ
+      MYSQL_DATABASE: default
+    expose:
+      - "3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 10s
+      retries: 10
+
+  localtunnel:
+    image: efrecon/localtunnel
+    restart: always
+    links:
+      - app
+    depends_on:
+      - app
+    command:
+        --local-host app --port 5000 --subdomain vkbotkpv

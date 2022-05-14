@@ -1,0 +1,17 @@
+@media (min-width: 1200px) {
+    .container{
+        max-width: 800px;
+         margin: 0 auto;
+  max-height: 100%;
+    }
+}
+
+.form-select-sm {
+    font-size: .875rem;
+    width: 2.4rem;
+    height: 1.8rem;
+    display: inline;
+    padding: 0;
+    padding-left: 0.3rem;
+    background-position: right;
+}

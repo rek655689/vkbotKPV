@@ -146,7 +146,7 @@ class Introduction(Command):
                                                          f"(ранее{self.db.intr(self.user.vk_id, 'get', 'last_name')[0][0]})"
                                                          f" \n https://catwar.su/cat{self.db.intr(self.user.vk_id, 'get', 'id')[0][0]}",
                                               'keyboard': Keyboard.request(self.db.intr(self.user.vk_id, 'get', 'id')[0][0])})
-            self.db.req_manager(self.)
+
             # TODO: отправка редакторам
 
             #

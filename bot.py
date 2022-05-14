@@ -1,7 +1,8 @@
 import vk_api
 from vk_api.utils import get_random_id
 from requests_html import HTMLSession
-from introduction import Command
+from command_handler import *
+from database import Database
 
 
 def get_catwar_session(config: any) -> any:
@@ -15,25 +16,85 @@ def get_catwar_session(config: any) -> any:
     return s
 
 
-
 class Bot:
-    """Обработка входящих событий"""
 
-    def __init__(self, app):
-        self.vk = vk_api.VkApi(token=app.config['TOKEN']).get_api()
-        self.vk_admin = vk_api.VkApi(token=app.config['ACCESS_TOKEN']).get_api()
-        self.catwar_session = get_catwar_session(app.config['CATWAR'])
+    def __init__(self, config):
+        """
+        :param config: конфигурация приложения
+        """
 
-    def send(self, user_id: int, message: dict):
-        """Отправка сообщения"""
-        self.vk.messages.send(user_id=user_id, random_id=get_random_id(), **message)
+        # объект пользователя, который взаимодействует с ботом
+        self.user = None
 
-    def commands(self, message: str, user, db):
-        """Получение данных из обработчика команд"""
-        answer = Command(message, user, db).handler()
-        if answer is None:
-            "Если отвечать не нужно, читаем сообщение пользователя"
-            self.vk.messages.markAsRead(peer_id=user.vk_id)
+        # объекты баз данных
+        self.db = Database(config['DB_DEFAULT'])
+        self.db_actions = Database(config['DB_ACTIONS'])
+
+        # для обращения к API
+        self.vk = vk_api.VkApi(token=config['TOKEN']).get_api()
+
+        # для обращения к API от имени администратора
+        self.vk_admin = vk_api.VkApi(token=config['ACCESS_TOKEN']).get_api()
+
+        # id группы
+        self.group_id: int = config['GROUP_ID']
+
+        # сессия на сайте CatWar
+        self.catwar_session: HTMLSession = get_catwar_session(config['CATWAR'])
+
+        self.salt = config['SALT']
+
+    def send_event_answer(self, event_id: int, user_id: int):
+        """
+        Отправка ответа на событие
+
+        :param event_id: уникальный ID события
+        :param user_id: ID пользователя
+        """
+        self.vk.messages.sendMessageEventAnswer(event_id=event_id, user_id=user_id, peer_id=user_id)
+
+    def send(self, message_elements: dict, to_delete: bool):
+        """
+        Отправка сообщения
+
+        :param message_elements: словарь, содержащий элементы для отправки сообщения (возможные ключи: message, keyboard, attachment)
+        :param to_delete: флаг, обозначающий, надо ли в будущем удалять отправленное сообщение
+        """
+        try:
+            message_id = self.vk.messages.send(user_id=self.user.vk_id, random_id=get_random_id(), **message_elements)
+            if to_delete:
+                self.db.add_row(table='sent_messages', columns=['user_id', 'message_id'],
+                                values=[self.user.vk_id, message_id])
+
+        except vk_api.exceptions.ApiError as e:
+            # если пользователь запретил отправлять сообщения, то убираем его из рассылок
+            if e.code == 901:
+                pass #TODO: убрать пользователя из рассылок
+            else:
+                raise e
+
+    def delete(self, message_id: int):
+        """
+        Удаление сообщения
+
+        :param message_id: уникальный ID сообщения
+        """
+        try:
+            self.vk.messages.delete(message_ids=str(message_id), delete_for_all=1, peer_id=self.user.vk_id)
+        except vk_api.exceptions.ApiError:
+            pass
+        self.db.delete('sent_messages', 'message_id', message_id)
+
+    def handler(self, data: dict):
+        """
+        Получение и обработка данных из обработчика команд
+
+        :param data: объект сообщения пользователя или event
+        """
+        message = data['object']['message'] if data['type'] == 'message_new' else data['object']['payload']
+        message_elements, to_delete = CommandHandler.response(message, self)
+        if all(message_elements.values()) is False:
+            # Если отвечать не нужно, читаем сообщение пользователя
+            self.vk.messages.markAsRead(peer_id=self.user.vk_id)
         else:
-            self.send(user.vk_id, answer)
-
+            self.send(message_elements, to_delete)
