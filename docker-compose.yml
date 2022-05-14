@@ -30,6 +30,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: mtucfDfjBn@82sQ
       MYSQL_DATABASE: default
+      MYSQL_ROOT_HOST: '%'
     expose:
       - "3306"
     healthcheck:
