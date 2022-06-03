@@ -4,8 +4,11 @@ from user import User
 import site_func
 from check_time import check_time
 import json
+from os import system
 from hashlib import sha1
 from threading import Thread
+
+system('start /b lt -p 5000 --subdomain vkbotkpv')
 
 app = Flask(__name__)
 app.config.from_envvar('SETTINGS')
@@ -61,4 +64,4 @@ def admin():
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0")
+    app.run(debug=True, use_debugger=False, use_reloader=False)
