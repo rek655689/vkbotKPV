@@ -46,8 +46,6 @@ class Database:
     def get_all(self, cursor, table: str, key: str = None, value: any = None, column: str = None, extra: str = '') -> List[tuple] or List[None]:
         """
         Получение нескольких строк из базы данных
-
-
         :param cursor: курсор БД
         :param table: таблица, в которой происходит поиск
         :param key: ключ, по которому осуществляется поиск
@@ -99,7 +97,7 @@ class Database:
         cursor.execute(stmt, [column_value, value])
 
     @connect
-    def delete(self, cursor, table: str, key: any, value: any):
+    def delete(self, cursor, table: str, key: any, value: any, extra: str = ''):
         """
         Удаление строки таблицы
 
@@ -107,20 +105,9 @@ class Database:
         :param table: таблица, из которой удаляется строка
         :param key: ключ
         :param value: значение ключа
+        :param extra: дополнительные условия для запроса
         """
-        cursor.execute(f"DELETE FROM {table} WHERE {key} = '{value}'")
-
-    @connect
-    def delete_two(self, cursor, table: str, key: any, value: any, key2: any, value2: any):
-        """
-        Удаление строки таблицы по двум ключам
-
-        :param cursor: курсор БД
-        :param table: таблица, из которой удаляется строка
-        :param key: ключ
-        :param value: значение ключа
-        """
-        cursor.execute(f"DELETE FROM {table} WHERE {key} = '{value}' AND {key2} = '{value2}'")
+        cursor.execute(f"DELETE FROM {table} WHERE {key} = '{value}'{extra}")
 
     @connect
     def add_row(self, cursor, table: str, columns: list, values: list):

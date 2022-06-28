@@ -1,6 +1,6 @@
 from kb import Keyboard
 ADMIN = ['creator', 'administrator']
-EDITOR = ['creator', 'administrator', 'editor', 'moderator']
+EDITOR = ['creator', 'administrator', 'moderator']
 ANY = ['creator', 'administrator', 'editor', 'moderator', 'advertiser', 'user']
 
 

@@ -1,25 +1,21 @@
 from flask import Flask, request, render_template
+import json
+from threading import Thread
+
 from bot import Bot
 from user import User
 import site_func
-from check_time import check_time
-import json
-from os import system
-from hashlib import sha1
-from threading import Thread
+from check_time import check_time_start
 
+# Тестирование
+from os import system
 system('start /b lt -p 5000 --subdomain vkbotkpv')
 
+# Инициализация приложения, бота, потока для рассылок напоминаний
 app = Flask(__name__)
 app.config.from_envvar('SETTINGS')
-
-
-# vk.groups.setCallbackSettings(group_id=203355465, server_id=18, message_new=1, message_deny=1, message_event=1)
-# 18 server_id = vk.groups.addCallbackServer(group_id=203355465, url='https://vkbotkpv.loca.lt', title='Сервер 2',
-#                                         secret_key='7pOZZhEE4u')
-
 bot = Bot(app.config)
-Thread(target=check_time, args=(bot, app.config['GROUP_ID']), daemon=True).start()
+Thread(target=check_time_start, args=(bot, app.config['GROUP_ID']), daemon=True).start()
 
 
 @app.route('/vk', methods=['POST'])
@@ -39,15 +35,17 @@ def processing():
 
 @app.route('/handler', methods=['GET', 'POST'])
 def handler():
+    """Обращения к серверу из JS"""
     data = json.loads(request.data)
     response = site_func.handler(bot, data)
-    return 'ok' if response is False else response
+    return response
 
 
 @app.route('/settings', methods=['GET'])
 def settings():
+    # подтверждение личности игрока
     h = request.args.get('h')
-    if h != sha1(bot.salt.encode() + request.args.get('id').encode()).hexdigest()[:-2]:
+    if h != site_func.encode_id(request.args.get('id'), bot.salt):
         return 'Для доступа к редактированию напоминаний, пожалуйста, запросите ссылку в боте по команде "настройки"'
 
     reminders = site_func.get_reminders(bot, request.args.get('id'))
@@ -60,7 +58,16 @@ def settings():
 
 @app.route('/admin', methods=['GET'])
 def admin():
-    return render_template('admin.html', name='Rek')
+    if int(request.args.get('id')) not in bot.get_managers(['creator', 'administrator', 'moderator']):
+        return 'К сожалению, доступ к странице закрыт'
+
+    h = request.args.get('h')
+    if h != site_func.encode_id(request.args.get('id'), bot.salt):
+        return 'Для доступа к редактированию напоминаний, пожалуйста, запросите ссылку в боте по команде "настройки"'
+
+    rows = site_func.get_reminders(bot)
+    bad_ids = site_func.get_bad_ids(bot)
+    return render_template('admin.html', rows=rows, bad_ids=bad_ids)
 
 
 if __name__ == '__main__':

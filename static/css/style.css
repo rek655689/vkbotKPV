@@ -15,3 +15,18 @@
     padding-left: 0.3rem;
     background-position: right;
 }
+
+.change_time {
+    width: 3em;
+}
+
+.del {
+    padding: 4px;
+    height: 1.3em;
+    line-height: 0px;
+}
+
+.bad_id {
+    display: inline-block;
+    margin: 0 5px;
+}

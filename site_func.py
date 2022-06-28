@@ -1,30 +1,56 @@
 from hashlib import sha1
+import mysql.connector
 
 
-def handler(bot, data):
-    h = data["h"]
-    if h != sha1(bot.salt.encode() + data["vk_id"].encode()).hexdigest()[:-2]:
-        return 'Для доступа к редактированию напоминаний, пожалуйста, запросите ссылку в боте по команде "настройки"'
+def encode_id(vk_id: str, salt: str) -> str:
+    """Кодирование id для идентификации игрока, запросившего настройки"""
+    return str(sha1(salt.encode() + vk_id.encode()).hexdigest()[:-2])
+
+
+def checking_position(bot, vk_id: str) -> None or [str, int]:
+    """Проверка игрока на наличие должности в группе, т.е. определение прав доступа"""
+    if int(vk_id) not in bot.get_managers(['creator', 'administrator', 'moderator']):
+        return 'К сожалению, доступ закрыт', 403
+
+
+def handler(bot, data) -> str or [str, int]:
+    if data["h"] != encode_id(data["vk_id"], bot.salt):
+        return 'Для доступа к редактированию напоминаний, пожалуйста, запросите ссылку в боте по команде "настройки"', 403
 
     match data['type']:
         case 'showNow':
-            showNow(bot, data)
+            return showNow(bot, data)
         case 'update':
-            update(bot, data)
+            return update(bot, data)
         case 'showAv':
-            showAv(bot, data)
+            return showAv(bot, data)
         case 'add':
-            add(bot, data)
+            return add(bot, data)
         case 'add_unique':
-            add_unique(bot, data)
-        case'update_unique':
-            update_unique(bot, data)
+            return add_unique(bot, data)
+        case 'update_unique':
+            return update_unique(bot, data)
+        case 'deleteBadId':
+            checking_position(bot, data["vk_id"])
+            return del_bad_id(bot, data)
+        case 'addBadId':
+            checking_position(bot, data["vk_id"])
+            return add_bad_id(bot, data)
+        case 'showAdmin':
+            checking_position(bot, data["vk_id"])
+            return showAdmin(bot, data)
+        case 'delTime':
+            checking_position(bot, data["vk_id"])
+            return delTime(bot, data)
 
 
-def get_reminders(bot, vk_id):
+def get_reminders(bot, vk_id: str = None):
     rows = []
     actions = set()
-    result = bot.db.get_all('reminders', 'vk_id', vk_id, 'id_schedule')
+    if vk_id:
+        result = bot.db.get_all('reminders', 'vk_id', vk_id, 'id_schedule')
+    else:
+        result = bot.db.get_all('reminders', column='id_schedule')
 
     for id_schedule in [m[0] for m in result]:
         actions.add(bot.db_actions.get_one('schedule', 'id_schedule', id_schedule, 'id_action')[0])
@@ -75,7 +101,7 @@ def showNow(bot, data):
                                            '</td>fortime')
 
     html = html.replace('fortime', '')
-    html += f'</table><button type="button" class="btn btn-outline-dark btn-sm" name="btn_hide" data-category="now">скрыть</button>'
+    html += f'</table><button type="button" class="btn btn-outline-dark btn-sm" name="hide" data-category="now">скрыть</button>'
 
     return html
 
@@ -104,7 +130,7 @@ def update(bot, data):
             bot.db.upd('reminders', 'id', x[0], 'remind_time', change_time.get(str(x[1])))
 
     for x in for_del:
-        bot.db.delete_two('reminders', 'vk_id', vk_id, 'id_schedule', x)
+        bot.db.delete('reminders', 'vk_id', vk_id, extra=f" AND id_schedule='{x}'")
     return 'ok'
 
 
@@ -141,7 +167,7 @@ def showAv(bot, data):
                                            '</select></div></td>fortime')
 
     html = html.replace('fortime', '')
-    html += f'</table><button type="button" class="btn btn-outline-dark btn-sm" name="btn_hide" data-category="av">скрыть</button>'
+    html += f'</table><button type="button" class="btn btn-outline-dark btn-sm" name="hide" data-category="av">скрыть</button>'
     return html
 
 
@@ -193,5 +219,62 @@ def update_unique(bot, data):
             bot.db.upd('reminders_unique', 'id', x[0], 'remind_time', change_time.get(str(x[1])))
 
     for x in for_del:
-        bot.db.delete_two('reminders_unique', 'vk_id', vk_id, 'id_unique', x)
+        bot.db.delete_two('reminders_unique', 'vk_id', vk_id, extra=f" AND id_unique='{x}'")
+    return 'ok'
+
+
+def get_bad_ids(bot):
+    """Получение списка ID игроков, которых запрещено принимать в группу"""
+    return [x[0] for x in bot.db.get_all('bad_ids', column='bad_id')]
+
+
+def del_bad_id(bot, data):
+    """Удаление игрока из списка запрещённых"""
+    bot.db.delete('bad_ids', 'bad_id', data["bad_id"])
+    return 'ok'
+
+
+def add_bad_id(bot, data):
+    """Добавление игрока в список запрещённых"""
+    try:
+        bot.db.add_row('bad_ids', ['bad_id'], [data["bad_id"]])
+    except mysql.connector.Error as e:
+        if e.errno == 1062:
+            return 'Такой ID уже добавлен', 500
+
+    html = f'''<div class="bad_id">{data["bad_id"]} 
+            <button type="button" class="btn btn-danger btn-sm del" name="del_bad_id">x</button></div>'''
+    return html
+
+
+def showAdmin(bot, data):
+    id_action = data["id_action"]
+    html = f'<table class="table table-borderless table-sm">fortime'
+
+    schedule = bot.db_actions.get_all('schedule', 'id_action', id_action, 'id_schedule, day, event_time')
+
+    days = {'ПН': 0, 'ВТ': 1, 'СР': 2, 'ЧТ': 3, 'ПТ': 4, 'СБ': 5, 'ВС': 6}
+    schedule = sorted(schedule, key=lambda y: int(y[2][:2]))  # сортировка по времени
+    schedule = sorted(schedule, key=lambda x: days.__getitem__(x[1]))  # сортировка по дню недели
+
+    day = ''
+
+    for x in schedule:
+        if day != x[1]:
+            day = x[1]
+            html = html.replace('fortime', '')
+            html += f'<tr><td>{day}:</td>fortime<td><input type="text" class="change_time" placeholder="00:00"></td></tr>'
+
+        html = html.replace('fortime', f'<td><input type="text" class="change_time" value="{x[2]}"> <button '
+                                       f'type="button" class="btn btn-danger btn-sm del" name="del_time">x</button>'
+                                       f'</td>fortime')
+
+    html = html.replace('fortime', '')
+    html += f'</table><button type="button" class="btn btn-outline-dark btn-sm" name="hide" data-category="now">скрыть</button>'
+
+    return html
+
+
+def delTime(bot, data):
+    bot.db_actions.delete('schedule', 'id_action', data["id_action"], extra=f" AND day='{data['day']}' AND event_time='{data['time']}'")
     return 'ok'

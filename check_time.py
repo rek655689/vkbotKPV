@@ -22,10 +22,6 @@ def check_time(bot, group_id):
         eval(f'schedule.every().day.at("{minutes("18:00", 5)}").do(brightest_night, bot, group_id, "5")')
         eval(f'schedule.every().day.at("{minutes("18:00", 10)}").do(brightest_night, bot, group_id, "10")')
 
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
-
 
 def send(bot, group_id, id_schedule, title, remind_time):
     ids = [x[0] for x in bot.db.get_all('reminders', 'id_schedule', id_schedule, 'vk_id', f" AND remind_time='{remind_time}'")]
@@ -67,21 +63,10 @@ def last_sunday(now):
     sundays = [week[6] for week in month if week[6] > 0]
     return sundays[-1]
 
-# now = datetime.datetime.now()
-# year = now.year
-# month = now.month
-# day = now.day
-# f_d_month, q_d_month = calendar.monthrange(year, month)[0], calendar.monthrange(year, month)[1]
-# ost = 6 - f_d_month
-# weeks = (q_d_month // 7)
-# f_d_month = weeks * 7 + 1
-# last_sunday = f_d_month + ost
-# if last_sunday > q_d_month:
-#     last_sunday -= 7
-#
-# if day == last_sunday:
-#     print(str(now.day) + ' true')
-#     schedule.every().day.at('17:55').do(actions.brightest_night.send5, vk, config, actions.brightest_night.times[0], actions.brightest_night)
-#     schedule.every().day.at('17:50').do(actions.brightest_night.send10, vk, config, actions.brightest_night.times[0], actions.brightest_night)
-# else:
-#     print(str(now.day) + ' no')
+
+def check_time_start(bot, group_id):
+    schedule.every().day.do(check_time, bot, group_id)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(1)

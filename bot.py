@@ -6,6 +6,7 @@ from database import Database
 
 
 def get_catwar_session(config: any) -> any:
+    """Получение объекта сессии на сайте"""
     s = HTMLSession()
     url = 'https://catwar.su/ajax/login'
     user_agent_val = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ' \
@@ -30,10 +31,10 @@ class Bot:
         self.db = Database(config['DB_DEFAULT'])
         self.db_actions = Database(config['DB_ACTIONS'])
 
-        # для обращения к API
+        # для обращения к API VK
         self.vk = vk_api.VkApi(token=config['TOKEN']).get_api()
 
-        # для обращения к API от имени администратора
+        # для обращения к API VK от имени администратора
         self.vk_admin = vk_api.VkApi(token=config['ACCESS_TOKEN']).get_api()
 
         # id группы
@@ -42,7 +43,7 @@ class Bot:
         # сессия на сайте CatWar
         self.catwar_session: HTMLSession = get_catwar_session(config['CATWAR'])
 
-        self.salt = config['SALT']
+        self.salt: str = config['SALT']
 
     def send_event_answer(self, event_id: int, user_id: int):
         """
@@ -98,3 +99,19 @@ class Bot:
             self.vk.messages.markAsRead(peer_id=self.user.vk_id)
         else:
             self.send(message_elements, to_delete)
+
+    def get_managers(self, positions: list = None) -> list:
+        """
+        Получение списка ID руководства группы
+
+        :param positions: список должностей, ID игроков с которыми надо получить; если None - все
+        :return: список ID
+        """
+        result = []
+        response = self.vk_admin.groups.getMembers(group_id=self.group_id, filter='managers')
+        for x in response["items"]:
+            if positions is not None and x["role"] in positions:
+                result.append(x["id"])
+            elif positions is None:
+                result.append(x["id"])
+        return result

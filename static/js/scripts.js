@@ -1,13 +1,63 @@
 // Колхозный Фронтенд - BetweenAugust&December
 
+var url =  new URL(location.href);
+var section = url.pathname.slice(1)
+var data = {section: section, vk_id: url.searchParams.get('id'), h: url.searchParams.get('h')};
+
+/**
+  * Переопределение jQuery ф-ции для переключения свойства hidden
+  */
+jQuery.fn.init.prototype.hide = function() {
+    var state = $(this).prop("hidden");
+    $(this).attr("hidden", !state);
+};
+
+/**
+  * Отправка данных на сервер
+  *
+  * @param {object} data - данные для отправки
+  * @param {function} do_error - функция, выполняющаяся в случае ошибки
+  * @param {function} do_success - функция, выполняющаяся в случае успеха
+  */
+function post(data) {
+    var jqxhr = $.ajax({
+                    url: '/handler',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json; charset=utf-8',
+                });
+    return jqxhr
+};
+
+/**
+  * Скрыть таблицу
+  */
+function hide_table(b_hide) {
+    $(b_hide).hide();
+    $("button[name='show']", $(b_hide).parent()).hide();
+    $("table", $(b_hide).parent()).hide();
+    $("button[name='upd']", $(b_hide).parents("tr")).hide();
+}
+
+/**
+  * Показать таблицу
+  */
+function show_table(b_show) {
+    $(b_show).hide();
+    $("button[name='hide']", $(b_show).parent()).hide();
+    $("table", $(b_show).parent()).hide();
+    $("button[name='upd']", $(b_show).parents("tr")).hide();
+}
+
+if (section == 'settings') {
 $(document).ready(function() {
 
-    $("button[name='btn_show']").on("click", function(event) {
+    /*  скрыть расписание  */
+    $("body").on("click", "button[name='hide']", function(event) { hide_table(event.target) });
+
+    $("button[name='show']").on("click", function(event) {
         let row = $(event.target).closest('tr')[0];
         let id_action = row.getAttribute('data-action');
-        let url =  new URL(location.href);
-        let vk_id = url.searchParams.get('id');
-        let h = url.searchParams.get('h');
 
         if (event.target.getAttribute("data-category") == "now") {
             let data = {type: 'showNow', id_action: id_action, vk_id: vk_id, h: h}
@@ -78,26 +128,26 @@ $(document).ready(function() {
         };
     });
 
-    $("td").on("click", "button[name='btn_hide']", function(event) {
-        let button_hide = event.target;
-        let td = $(button_hide).parent();
-        let button_show = $("button[name='btn_show']", td)[0];
-        let table = $("table", td)[0];
-
-        if (event.target.getAttribute("data-category") == "now") {
-            let button_upd = $("button[name='btn_upd']", td.parent())[0];
-            [button_hide, button_show, button_upd, table].forEach(function(elem) {
-                if (elem) {elem.hidden = !elem.hidden;}
-            });
-        };
-
-        if (event.target.getAttribute("data-category") == "av") {
-            let button_add = $("button[name='btn_add']", td.parent())[0];
-            [button_hide, button_show, button_add, table].forEach(function(elem) {
-                if (elem) {elem.hidden = !elem.hidden;}
-            });
-        };
-    });
+//    $("td").on("click", "button[name='hide']", function(event) {
+//        let button_hide = event.target;
+//        let td = $(button_hide).parent();
+//        let button_show = $("button[name='show']", td)[0];
+//        let table = $("table", td)[0];
+//
+//        if (event.target.getAttribute("data-category") == "now") {
+//            let button_upd = $("button[name='upd']", td.parent())[0];
+//            [button_hide, button_show, button_upd, table].forEach(function(elem) {
+//                if (elem) {elem.hidden = !elem.hidden;}
+//            });
+//        };
+//
+//        if (event.target.getAttribute("data-category") == "av") {
+//            let button_add = $("button[name='add']", td.parent())[0];
+//            [button_hide, button_show, button_add, table].forEach(function(elem) {
+//                if (elem) {elem.hidden = !elem.hidden;}
+//            });
+//        };
+//    });
 
     $("td").on("change", "input[name='sch_time']", function(event) {
         let select = $("select", $(event.target).parent())[0];
@@ -119,9 +169,6 @@ $(document).ready(function() {
             change_time.set(id, time);
         });
 
-        let url =  new URL(location.href);
-        let vk_id = url.searchParams.get('id');
-        let h = url.searchParams.get('h');
         let data = {type: 'update', for_del: for_del, change_time: Array.from(change_time.entries()), vk_id: vk_id,
                     h: h};
         $.ajax({
@@ -157,9 +204,6 @@ $(document).ready(function() {
             }
         });
 
-        let url =  new URL(location.href);
-        let vk_id = url.searchParams.get('id');
-        let h = url.searchParams.get('h');
         let data = {type: 'add', add_actions: Array.from(add_actions.entries()), vk_id: vk_id, h: h};
         $.ajax({
                 url: '/handler',
@@ -227,9 +271,7 @@ $(document).ready(function() {
                 change_time.set(id, time);
             });
 
-            let url =  new URL(location.href);
-            let vk_id = url.searchParams.get('id');
-            let h = url.searchParams.get('h');
+
             let data = {type: 'update_unique', for_del: for_del, change_time: Array.from(change_time.entries()), vk_id: vk_id,
                         h: h};
             $.ajax({
@@ -248,3 +290,4 @@ $(document).ready(function() {
     });
 
 });
+}

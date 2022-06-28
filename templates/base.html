@@ -16,6 +16,8 @@
 
     <link rel="shortcut icon" href="{{ url_for('static', filename= 'img/favicon.png') }}" type="image/png">
     <title>{% block title %} {% endblock %}</title>
+    {% block head %}
+    {% endblock %}
   </head>
   <body>
     <div class="container">

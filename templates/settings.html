@@ -15,8 +15,8 @@
         {% set id = row[0] %}
         <tr data-action="{{id}}">
             <td>{{row[1]}}</td>
-            <td><button type="button" class="btn btn-secondary btn-sm" name="btn_show" data-category="now">показать</button></td>
-            <td style="vertical-align: middle;"><button type="button" class="btn btn-primary btn-sm" name="btn_upd" hidden>обновить</button></td>
+            <td><button type="button" class="btn btn-secondary btn-sm" name="show" data-category="now">показать</button></td>
+            <td style="vertical-align: middle;"><button type="button" class="btn btn-primary btn-sm" name="upd" hidden>обновить</button></td>
         </tr>
         {% endfor %}
         </tbody>
